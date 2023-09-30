@@ -115,10 +115,6 @@ class AprilTag : LinearOpMode() {
         //visionPortal.setProcessorEnabled(aprilTag, true);
     } // end method initAprilTag()
 
-    object artifact {
-
-    }
-
     /**
      * Add telemetry about AprilTag detections.
      */
@@ -150,4 +146,5 @@ class AprilTag : LinearOpMode() {
         private const val USE_WEBCAM = true // true for webcam, false for phone camera
 
     }
+    // amogus toegus
 } // end class
