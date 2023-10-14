@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
+import android.annotation.SuppressLint
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.sun.tools.javac.resources.version
+import org.firstinspires.ftc.robotcontroller.external.samples.RobotAutoDriveToAprilTagOmni
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -146,5 +145,30 @@ class AprilTag : LinearOpMode() {
         private const val USE_WEBCAM = true // true for webcam, false for phone camera
 
     }
+    fun Y (){
+        val vision: List<AprilTagDetection> = aprilTag!!.detections
+        for (item in vision) {
+             item.ftcPose
+        }
+
+
+        val currentDetections: List<AprilTagDetection> = aprilTag!!.detections
+        for (detection in currentDetections) {
+            if (detection.metadata != null &&
+                    (RobotAutoDriveToAprilTagOmni.DESIRED_TAG_ID < 0 || detection.id == RobotAutoDriveToAprilTagOmni.DESIRED_TAG_ID)) {
+                break // don't look any further.
+            } else {
+                telemetry.addData("Unknown Target", "Tag ID %d is not in TagLibrary\n", detection.id)
+            }
+        }
+        }
+
+    }
+
+
+
+
     // amogus toegus
-} // end class
+ // end class
+
+

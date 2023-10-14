@@ -44,7 +44,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
-@Disabled
+//@Disabled
 class ConceptTensorFlowObjectDetection : LinearOpMode() {
     /**
      * The variable to store our instance of the TensorFlow Object Detection processor.
@@ -161,4 +161,5 @@ class ConceptTensorFlowObjectDetection : LinearOpMode() {
     companion object {
         private const val USE_WEBCAM = true // true for webcam, false for phone camera
     }
+    
 } // end class
