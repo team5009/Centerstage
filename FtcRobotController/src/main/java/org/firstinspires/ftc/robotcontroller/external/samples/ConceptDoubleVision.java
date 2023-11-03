@@ -140,22 +140,22 @@ public class ConceptDoubleVision extends LinearOpMode {
         tfod = new TfodProcessor.Builder()
             .build();
 
-        // -----------------------------------------------------------------------------------------
-        // Camera Configuration
-        // -----------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------
+    // Camera Configuration
+    // -----------------------------------------------------------------------------------------
 
         if (USE_WEBCAM) {
-            myVisionPortal = new VisionPortal.Builder()
+        myVisionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .addProcessors(tfod, aprilTag)
                 .build();
-        } else {
-            myVisionPortal = new VisionPortal.Builder()
+    } else {
+        myVisionPortal = new VisionPortal.Builder()
                 .setCamera(BuiltinCameraDirection.BACK)
                 .addProcessors(tfod, aprilTag)
                 .build();
-        }
-    }   // end initDoubleVision()
+    }
+}   // end initDoubleVision()
 
     /**
      * Add telemetry about AprilTag detections.
