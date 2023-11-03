@@ -18,7 +18,7 @@ class Ruboot (op : LinearOpMode){
 
     val lift: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "elevato")
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
-
+    val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java,"intake")
 
 
 
@@ -35,6 +35,7 @@ class Ruboot (op : LinearOpMode){
 
         lift.direction = DcMotorSimple.Direction.FORWARD
         arm.direction = DcMotorSimple.Direction.FORWARD
+        intake.direction = DcMotorSimple.Direction.FORWARD
 
 
         fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -62,6 +63,7 @@ class Ruboot (op : LinearOpMode){
 
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        intake.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
 
     }
