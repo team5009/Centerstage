@@ -1,10 +1,6 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.autonomous
 
-import androidx.core.graphics.createBitmap
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptTensorFlowObjectDetection
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
@@ -63,9 +59,8 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor
     }
 
 
-
+    val currentRecognitions = tfod!!.recognitions
     fun detectprop(): String {
-        val currentRecognitions = tfod!!.recognitions
         op.telemetry.addData("# Props Detected", currentRecognitions.size)
         if (currentRecognitions.isNotEmpty()) {
             if (currentRecognitions[0].left < 300) {
@@ -79,9 +74,8 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor
                 return "right"
             }
         }
-        return "right"
+        else return "right"
     }
-
 
 
      fun tagid(): Int {

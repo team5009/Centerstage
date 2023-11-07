@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode
 import android.annotation.SuppressLint
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.robotcontroller.external.samples.RobotAutoDriveToAprilTagOmni
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
+import org.firstinspires.ftc.teamcode.autonomous.Visuon
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -29,8 +29,10 @@ class AprilTag : LinearOpMode() {
      * The variable to store our instance of the vision portal.
      */
     private var visionPortal: VisionPortal? = null
+    val visuon = Visuon(this)
     override fun runOpMode() {
         initAprilTag()
+
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream")
@@ -154,8 +156,7 @@ class AprilTag : LinearOpMode() {
 
         val currentDetections: List<AprilTagDetection> = aprilTag!!.detections
         for (detection in currentDetections) {
-            if (detection.metadata != null &&
-                    (RobotAutoDriveToAprilTagOmni.DESIRED_TAG_ID < 0 || detection.id == RobotAutoDriveToAprilTagOmni.DESIRED_TAG_ID)) {
+            if (detection.metadata != null && (visuon.tagid() < 0 || detection.id == visuon.tagid())) {
                 break // don't look any further.
             } else {
                 telemetry.addData("Unknown Target", "Tag ID %d is not in TagLibrary\n", detection.id)

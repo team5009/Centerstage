@@ -159,7 +159,7 @@ class ConceptTensorFlowObjectDetection : LinearOpMode() {
     } // end method telemetryTfod()
 
     companion object {
-        private const val USE_WEBCAM = true // true for webcam, false for phone camera
+        const val USE_WEBCAM = true // true for webcam, false for phone camera
     }
     
 } // end class
