@@ -17,8 +17,9 @@ class RobotTest(Instance: LinearOpMode) {
 
     val lift: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "elevato")
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
+    val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "intake")
 
-
+    val cam: Camera = Camera()
     //val cam1: CameraName = Instance.hardwareMap.get("FrontCam") as WebcamName
 
     init {
@@ -30,6 +31,8 @@ class RobotTest(Instance: LinearOpMode) {
 
         lift.direction = DcMotorSimple.Direction.FORWARD
         arm.direction = DcMotorSimple.Direction.FORWARD
+
+        intake.direction = DcMotorSimple.Direction.FORWARD
 
         fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         fl.mode = DcMotor.RunMode.RUN_USING_ENCODER
@@ -47,7 +50,6 @@ class RobotTest(Instance: LinearOpMode) {
 
 
 
-
         // Behaviour when Motor Power = 0
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -57,6 +59,9 @@ class RobotTest(Instance: LinearOpMode) {
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
+        intake.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        cam.initAprilTag(Instance.hardwareMap)
     }
 
     fun tics_per_inch(inches: Double): Double {

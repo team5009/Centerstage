@@ -66,9 +66,8 @@ class Auto1 : LinearOpMode() {
         telemetry.update()
         // run until the end of the match (driver presses STOP)
         if (opModeIsActive()) {
-            bot.move(48.0, 0.7)
-            sleep(1000)
-            bot.move(4.0, -0.7)
+            bot.goToAprilTag(5.0, 2)
+            bot.switchProc(bot.bot.cam.camProc!!)
         }
         telemetry.addData("Status", "Ended")
         telemetry.update()

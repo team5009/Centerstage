@@ -1,16 +1,33 @@
 package org.firstinspires.ftc.teamcode
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import androidx.core.graphics.get
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.vision.VisionPortal
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
+import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Math.abs
 import kotlin.math.floor
+import kotlin.math.roundToInt
+import com.qualcomm.robotcore.util.Range
+import org.firstinspires.ftc.vision.VisionProcessor
+
 
 class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
 
     val instance = Instance
     val t = tele
     val bot = RobotTest(Instance)
+    var bitSave: Bitmap? = null
 
     fun move(dist: Double, speed: Double) {
         /*
@@ -147,6 +164,134 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
 
         bot.move(0.0, 0.0, 0.0, 0.0)
         resetEncoders()
+    }
+    fun intake(power : Double, time: Long) {
+        bot.intake.power = power
+        instance.sleep(time)
+        bot.intake.power = 0.0
+    }
+    fun savePicture() : Bitmap{
+        bitSave = BitmapFactory.decodeFile("/sdcard/VisionPortal-current_frame.png")
+        var hsv = FloatArray(3)
+        Color.colorToHSV(bitSave!!.getPixel(100,100), hsv)
+        val hue = ((hsv[0] / 60.0).roundToInt() % 6)
+        t.addData("Got frame: ", hue + 1)
+        return bitSave!!
+    }
+
+    fun checkTarget(alliance : Int, left : Int, top : Int, width : Int, height : Int) : Double {
+        var hsv = FloatArray(3)
+        val tot = width * height
+        var count = 0
+        for (x in left..left+width) {
+            for (y in top..top+height) {
+                Color.colorToHSV(bitSave!!.getPixel(x, y), hsv)
+                if (((hsv[0] / 60.0).roundToInt() % 6) + 1 == alliance) {
+                    count += 1
+                }
+            }
+        }
+
+        return count.toDouble() / tot.toDouble()
+    }
+    fun detectProp2(alliance : Int) : Int {
+        var res : Int = 1
+        val leftC : Int = 160
+        val topC : Int = 300
+        val widthC : Int = 70
+        val heightC : Int = 70
+
+        val leftR : Int = 460
+        val topR : Int = 300
+        val widthR : Int = 70
+        val heightR : Int = 70
+
+
+        if (checkTarget(alliance, leftC, topC, widthC, heightC) > 0.4) {
+            res = 2
+        } else if (checkTarget(alliance, leftR, topR, widthR, heightR) > 0.4) {
+            res = 3
+        }
+
+        if (alliance == 1) {
+            res += 3
+        }
+        return res
+    }
+
+    fun showRedCenter() {
+        t.addData("x: ", bot.cam.camProc!!.getCenter().x)
+        t.addData("y: ", bot.cam.camProc!!.getCenter().y)
+    }
+
+    fun detectProp() : Int {
+        val centerX : Double = bot.cam.camProc!!.getCenter().x
+        if(centerX > 180 && centerX < 300) {
+            t.addData("Prop: ", "Center")
+            return 5
+        } else if(centerX > 400 && centerX < 570) {
+            t.addData("Prop: ", "Right")
+            return 6
+        }
+        t.addData("Prop: ", "Left")
+        return 4
+
+    }
+    fun goToAprilTag(distAway : Double, propPos : Int) {
+        var targetDist : Double = 0.0
+        var bearing : Double = 0.0
+        var yaw : Double = 0.0
+        var emptyTimes : Int = 0
+
+
+        while (instance.opModeIsActive() && targetDist >= 0.0) {
+
+            t.update()
+            var detections: List<AprilTagDetection>? = null
+            detections = bot.cam.aprilTag!!.detections
+            for (det in detections!!) {
+                t.addLine("ID: ${det.id}, name: ${det.metadata.name}")
+                t.addLine("RBE ${det.ftcPose.range} ${det.ftcPose.bearing} ${det.ftcPose.yaw}  (inch, deg, deg)")
+
+                if (det.id == propPos) {
+                    targetDist = det.ftcPose.range - distAway
+                    bearing = det.ftcPose.bearing
+                    yaw = -det.ftcPose.yaw
+                    break
+                } else {
+                    targetDist = 0.0
+                    bearing = 0.0
+                    yaw = (det.id.toDouble() - propPos.toDouble()) * 30.0
+                }
+            }
+
+            if (detections.isEmpty()) {
+                emptyTimes += 1
+            } else {
+                emptyTimes = 0
+            }
+
+            if (emptyTimes > 2) {
+                bot.move(0.0, 0.0, 0.0, 0.0)
+            } else {
+
+                val drive: Double = Range.clip((targetDist + 3.0) * 0.03, -0.5, 0.5)
+                val turn: Double = Range.clip(bearing * 0.015, -0.5, 0.5)
+                val strafe: Double = Range.clip(yaw * 0.01, -0.5, 0.5)
+                bot.move((drive - turn - strafe) / 1.5,
+                        (drive + turn + strafe) / 1.5,
+                        (drive - turn + strafe) / 1.5,
+                        (drive + turn - strafe) / 1.5)
+
+            }
+
+        }
+    }
+    fun switchProc(proc: VisionProcessor) {
+        bot.cam.visionPortal!!.setProcessorEnabled(
+                proc,
+                !bot.cam.visionPortal!!.getProcessorEnabled(proc)
+        )
     }
 }
 
