@@ -42,7 +42,7 @@ class RobotTest(Instance: LinearOpMode) {
         intake.direction = DcMotorSimple.Direction.FORWARD
 
         fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        fl.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        fl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         fr.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         fr.mode = DcMotor.RunMode.RUN_USING_ENCODER
         bl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -82,7 +82,7 @@ class RobotTest(Instance: LinearOpMode) {
     }
 
     fun tics_per_inch(inches: Double): Double {
-        return 384.5 / 4 / Math.PI * inches
+        return 340 / 4 / Math.PI * inches
     }
 
     fun tics_per_lift(inches: Double) :Double {
@@ -90,7 +90,7 @@ class RobotTest(Instance: LinearOpMode) {
     }
 
     fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
-        fl.power = flPower
+        fl.power = flPower * 0.5
         fr.power = frPower
         bl.power = blPower
         br.power = brPower
