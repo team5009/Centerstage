@@ -17,16 +17,15 @@ class Auto2 : LinearOpMode() {
         // Wait for the game to start (driver presses PLAY)
         waitForStart()
         runtime.reset()
-
+        val propPos:Int = 5 //bot.detectProp()
         telemetry.addData("Status", "Started")
         telemetry.update()
         // run until the end of the match (driver presses STOP)
         if (opModeIsActive()) {
-            val propPos = 5 //bot.detectProp()
-            bot.move(10.0, 0.7)
+            bot.move(5.0, 0.7)
             sleep(1000)
+            bot.strafeside(10.0, 0.6)
             if(propPos == 5){
-                bot.strafeside(10.0, 0.6)
                 bot.move(20.0, 0.7)
                 bot.strafeside(4.0, -0.6)
                 bot.intake(0.8, 250)

@@ -15,11 +15,15 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.io.FileOutputStream
 import java.io.IOException
-import java.lang.Math.abs
+import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import com.qualcomm.robotcore.util.Range
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.vision.VisionProcessor
+import kotlin.math.sign
 
 
 class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
@@ -40,8 +44,11 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
         */
         val tics = bot.tics_per_inch(dist)
         bot.move(speed, speed, speed, speed)
-        while (instance.opModeIsActive() && kotlin.math.abs(bot.fl.currentPosition) < tics) {
-            instance.sleep(20)
+        while (instance.opModeIsActive() && abs(bot.fl.currentPosition) < tics) {
+            t.addData("Fl Pos", bot.fl.currentPosition)
+            t.addData("Tics", tics)
+            t.addData("State", abs(bot.fl.currentPosition) < tics)
+            t.update()
         }
 
         bot.move(0.0, 0.0, 0.0, 0.0)
@@ -117,8 +124,6 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
         bot.bl.mode = DcMotor.RunMode.RUN_USING_ENCODER
         bot.br.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         bot.br.mode = DcMotor.RunMode.RUN_USING_ENCODER
-
-
     }
 
     fun lifting(dist: Double, power: Double) {
@@ -157,6 +162,8 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
 
     fun strafeside(dist: Double, power: Double) {
         val tics = bot.tics_per_inch(dist)
+        t.addData("tics: ", tics)
+        t.update()
         bot.move(-power, -power, power, power)
         while (instance.opModeIsActive() && kotlin.math.abs(bot.fl.currentPosition) < tics) {
             instance.sleep(20)
@@ -169,6 +176,12 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
         bot.intake.power = power
         instance.sleep(time)
         bot.intake.power = 0.0
+    }
+
+    fun arm(power : Double, time : Long) {
+        bot.arm.power = power
+        instance.sleep(time)
+        bot.arm.power = 0.0
     }
     fun savePicture() : Bitmap{
         bitSave = BitmapFactory.decodeFile("/sdcard/VisionPortal-current_frame.png")
@@ -217,6 +230,115 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
             res += 3
         }
         return res
+    }
+
+    enum class Direction {
+        FORWARD, BACKWARD, OPEN, CLOSE, UP, DOWN, MIDDLE, LEFT, RIGHT
+    }
+    private fun stop(bool: Boolean = true) {
+        if (bool) {
+            bot.fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            bot.fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            bot.bl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            bot.br.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        } else {
+            bot.fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            bot.fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            bot.bl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            bot.br.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        }
+    }
+
+    fun turnToAngle(angle: Double, power: Double) {
+
+        bot.move(-power/100.0, power/100.0, -power/100.0, power/100.0)
+
+        while (instance.opModeIsActive() &&
+                abs(abs(angle) - getAbsoluteHeading()) > 1.0 // used to be 10
+        )  {
+            instance.telemetry.addData("Current Angle", getAbsoluteHeading());
+            instance.telemetry.addData("Current", getAbsoluteHeading())
+            instance.telemetry.addData("Target", angle)
+            instance.telemetry.addData("Difference", abs(angle - getAbsoluteHeading()))
+            instance.telemetry.update()
+        }
+        bot.move(0.0, 0.0, 0.0, 0.0)
+    }
+
+    fun pivotTurn(angle: Double, power: Double, direction: Direction) {
+
+        val pow: Double = if (angle < 0) -(power/100) else (power/100)
+
+        when (direction) {
+            Direction.LEFT -> {
+                turn(-(pow/2.5), pow)
+            }
+            Direction.RIGHT -> {
+                turn(pow, -(pow/2.5))
+            }
+            else -> {
+                turn(0.0,0.0)
+            }
+        }
+        while (instance.opModeIsActive() &&
+                abs(abs(angle) - getAbsoluteHeading()) > 1.0 // used to be 10
+        )  {
+            t.addData("Current", getAbsoluteHeading())
+            t.addData("Target", angle)
+            t.addData("Difference", abs(angle) - getAbsoluteHeading())
+            t.update()
+        }
+        bot.move(0.0, 0.0, 0.0, 0.0)
+    }
+
+    fun convertAngle(angleIn: Double): Double{
+        if(angleIn < 0)
+        {
+            return -((-angleIn + 180) % 360 - 180);
+        }
+        return (angleIn + 180) % 360 - 180;
+    }
+    fun pivot(angle: Double, telemetry: Telemetry) {
+        var heading = angle
+        var diff = convertAngle(heading) - convertAngle(bot.rawHeading)
+
+        while (instance.opModeIsActive() && abs(diff) > 2) {
+            //telemetry.addData("difference", diff)
+            //telemetry.update()
+            //bot.Instance.sleep(2000)
+            diff = convertAngle(heading) - convertAngle(bot.rawHeading)
+            var pow = maxOf(0.8 * ((abs(diff) / 100)), 0.075)
+            var value = if (abs(diff) > 180) -sign(diff) else sign(diff)
+
+            if (value < 0) bot.move(-pow, pow, -pow, pow) else bot.move(pow, -pow, pow, -pow)
+
+            telemetry.addData("Target Heading", heading)
+            telemetry.addData("Current Heading", bot.rawHeading)
+            telemetry.addData("", "")
+            telemetry.addData("Difference", diff)
+            telemetry.addData("Value", value)
+            telemetry.addData("Power", pow)
+            telemetry.update()
+        }
+        bot.move(0.0, 0.0, 0.0, 0.0)
+    }
+    fun getAbsoluteHeading(): Float {
+        val angle = bot.imu.getRobotOrientation(
+                AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle
+
+        return if (angle < 0) {
+            360 - abs(angle)
+        } else {
+            angle
+        }
+    }
+
+    fun turn(leftPow: Double, rightPow:Double) {
+        bot.fl.power = leftPow
+        bot.fr.power = rightPow
+        bot.bl.power = leftPow
+        bot.br.power = rightPow
     }
 
     fun showRedCenter() {
@@ -276,7 +398,7 @@ class Autonomous1(Instance: LinearOpMode, tele: Telemetry) {
             } else {
 
                 val drive: Double = Range.clip((targetDist + 3.0) * 0.03, -0.5, 0.5)
-                val turn: Double = Range.clip(bearing * 0.015, -0.5, 0.5)
+                val turn: Double = Range.clip(bearing * 0.02, -0.5, 0.5)
                 val strafe: Double = Range.clip(yaw * 0.01, -0.5, 0.5)
                 bot.move((drive - turn - strafe) / 1.5,
                         (drive + turn + strafe) / 1.5,

@@ -1,13 +1,19 @@
 package org.firstinspires.ftc.teamcode
 
+import com.qualcomm.hardware.bosch.BHI260IMU
+import com.qualcomm.hardware.bosch.BNO055IMU
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.IMU
+import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 
 class RobotTest(Instance: LinearOpMode) {
     val fl: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "FL")
@@ -18,8 +24,10 @@ class RobotTest(Instance: LinearOpMode) {
     val lift: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "elevato")
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
     val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "intake")
+    val pixelservo: Servo = Instance.hardwareMap.get(Servo::class.java,"flap")
 
     val cam: Camera = Camera()
+    val imu: BHI260IMU = Instance.hardwareMap.get(BHI260IMU::class.java, "imu")
     //val cam1: CameraName = Instance.hardwareMap.get("FrontCam") as WebcamName
 
     init {
@@ -31,7 +39,6 @@ class RobotTest(Instance: LinearOpMode) {
 
         lift.direction = DcMotorSimple.Direction.FORWARD
         arm.direction = DcMotorSimple.Direction.FORWARD
-
         intake.direction = DcMotorSimple.Direction.FORWARD
 
         fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -58,10 +65,20 @@ class RobotTest(Instance: LinearOpMode) {
 
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
         intake.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         cam.initAprilTag(Instance.hardwareMap)
+        val imuParameters : IMU.Parameters = IMU.Parameters(
+                RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+                )
+        )
+
+        imu.initialize(imuParameters)
+        imu.resetYaw()
+
+        pixelservo.position = 0.5
     }
 
     fun tics_per_inch(inches: Double): Double {
@@ -78,5 +95,8 @@ class RobotTest(Instance: LinearOpMode) {
         bl.power = blPower
         br.power = brPower
     }
+
+    val rawHeading: Double
+        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
 
 }

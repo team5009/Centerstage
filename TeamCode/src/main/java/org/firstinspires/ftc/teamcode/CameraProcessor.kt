@@ -59,8 +59,10 @@ class CameraProcessor : VisionProcessor {
 
         val thresh = Mat()
 
-        val lowHSV = Scalar(0.0, 10.0, 0.0)
-        val highHSV = Scalar(15.0, 255.0, 255.0)
+        //val lowHSV = Scalar(0.0, 10.0, 0.0)
+        //val highHSV = Scalar(15.0, 255.0, 255.0)
+        val lowHSV = Scalar(100.0, 90.0, 0.0)
+        val highHSV = Scalar(130.0, 255.0, 255.0)
         Core.inRange(mat, lowHSV, highHSV, thresh)
 
         if (thresh.empty()) return frame

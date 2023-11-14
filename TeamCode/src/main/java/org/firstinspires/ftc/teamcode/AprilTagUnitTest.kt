@@ -15,7 +15,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 class AprilTagUnitTest : LinearOpMode() {
 
     private var aprilTag: AprilTagProcessor? = null
-    private var visionPortal: VisionPortal? = null
+    var visionPortal: VisionPortal? = null
     private val runtime = ElapsedTime()
     override fun runOpMode() {
 
@@ -23,25 +23,35 @@ class AprilTagUnitTest : LinearOpMode() {
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
-        waitForStart()
-        runtime.reset()
+
 
         telemetry.addData("Status", "Started")
         telemetry.update()
         // run until the end of the match (driver presses STOP)
-        initAprilTag()
+        //initAprilTag()
         // Wait for the DS start button to be touched.
+        //bot.bot.cam.picture2File()
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream")
         telemetry.addData(">", "Touch Play to start OpMode")
         telemetry.update()
         waitForStart()
+        runtime.reset()
+        telemetry.update()
+        sleep(1000)
         val propPos = 2
         var targetDist: Double = 0.0
         var bearing: Double = 0.0
         var yaw: Double = 0.0
         var emptyTimes: Int = 0
+        bot.bot.cam.picture2File()
         while (opModeIsActive()) {
-            var detections: List<AprilTagDetection>? = null
+
+            //bot.detectProp(1)
+            bot.showRedCenter()
+            bot.detectProp()
+
+            telemetry.update()
+            /*var detections: List<AprilTagDetection>? = null
             detections = aprilTag!!.detections
             for (det in detections!!) {
                 telemetry.addLine("ID: ${det.id}, name: ${det.metadata.name}")
@@ -98,8 +108,8 @@ class AprilTagUnitTest : LinearOpMode() {
 
             // Share the CPU.
             sleep(20)
-        }
-
+        */}
+        while(opModeIsActive()) {}
         // Save more CPU resources when camera is no longer needed.
         visionPortal!!.close()
         telemetry.addData("Status", "Ended")
@@ -154,5 +164,4 @@ class AprilTagUnitTest : LinearOpMode() {
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
     } // end method initAprilTag()
-
 }
