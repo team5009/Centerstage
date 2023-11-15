@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode
+import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BHI260IMU
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -10,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import kotlin.math.abs
 
-class Ruboot (op : LinearOpMode){
+class Ruboot (op : LinearOpMode) {
 
     val Instance = op
     val fl: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "FL")
@@ -21,17 +22,13 @@ class Ruboot (op : LinearOpMode){
 
     val lift: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "elevato")
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
-    val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java,"intake")
-    val flap: Servo = Instance.hardwareMap.get(Servo::class.java,"flap")
+    val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "intake")
+    val flap: Servo = Instance.hardwareMap.get(Servo::class.java, "flap")
 
     val imu: BHI260IMU = Instance.hardwareMap.get(BHI260IMU::class.java, "imu")
 
 
-
-        //val cam1: CameraName = Instance.hardwareMap.get("FrontCam") as WebcamName
-
-
-
+    //val cam1: CameraName = Instance.hardwareMap.get("FrontCam") as WebcamName
 
 
     init {
@@ -74,7 +71,7 @@ class Ruboot (op : LinearOpMode){
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intake.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        val imuParameters : IMU.Parameters = IMU.Parameters(
+        val imuParameters: IMU.Parameters = IMU.Parameters(
             RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
@@ -105,16 +102,32 @@ class Ruboot (op : LinearOpMode){
     }
 
 
-    fun tics_per_lift(inches: Double) :Double {
+    fun tics_per_lift(inches: Double): Double {
         return 1120 / 1.96 / Math.PI * inches
     }
 
     fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
         fl.power = frPower
-        fr.power = flPower
+        fr.power = flPower / 2
         bl.power = brPower
         br.power = blPower
     }
 
-
+    val armbutt: Boolean = false
+    fun armmove() {
+        val time = SystemClock.uptimeMillis()
+        while (armbutt) {
+            val timeofloop = SystemClock.uptimeMillis() - time
+            Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
+            if (timeofloop > 0.25) {
+                if (arm.velocity > 90)
+                    arm.power = arm.power - 0.1
+                else if (arm.power < 90) {
+                    arm.power = arm.power + 0.1
+                } else {
+                    arm.power = arm.power
+                }
+            }
+        }
+    }
 }

@@ -34,15 +34,15 @@ class TilioP : LinearOpMode() {
             val exponantrighttrig2: Double = right_trig2 * right_trig2 * right_trig2
             val exponantlefttrig: Double = left_trig * left_trig * left_trig
             val exponantrighttrig: Double = right_trig * right_trig * right_trig
-            if (gamepad2.a) {
+            if (gamepad1.a) {
                 telemetry.addLine("S  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
-                ratio = 0.4
+                ratio = 0.2
                 telemetry.update()
-            } else if (gamepad2.y) {
+            } else if (gamepad1.y) {
                 telemetry.addLine("GOING FAST!")
                 ratio = 1.0
                 telemetry.update()
-            } else if (gamepad2.start) {
+            } else if (gamepad1.start) {
                 telemetry.addLine("N o r m a l  s p e e d")
                 telemetry.update()
                 ratio = 0.8
@@ -98,16 +98,16 @@ class TilioP : LinearOpMode() {
                 bot.move(0.5, -0.5, -0.5, 0.5)
                 telemetry.addLine("Going Left >:l")
             } else if (gamepad1.left_stick_y < -0.1 && abs(gamepad1.right_stick_y) < 0.1) {
-                bot.move(0.0, exponantright * ratio, 0.0, exponantright * ratio)
+                bot.move(0.0, -ratio, 0.0, -ratio)
                 telemetry.addLine("Turning Left :)")
             } else if (abs(gamepad1.left_stick_y) < 0.1 && gamepad1.right_stick_y < -0.1) {
-                bot.move(exponantleft * ratio, 0.0, exponantleft * ratio, 0.0)
+                bot.move(-ratio, 0.0, -ratio, 0.0)
                 telemetry.addLine("Turning Right :)")
             } else if (gamepad1.right_stick_y > 0.1 && abs(gamepad1.left_stick_y) < 0.1) { //this one works
-                bot.move(0.0, exponantright * ratio, 0.0, exponantright * ratio)
+                bot.move(0.0, ratio, 0.0, ratio)
                 telemetry.addLine("Turning Right :)")
             } else if (abs(gamepad1.right_stick_y) < 0.1 && gamepad1.left_stick_y > 0.1) {
-                bot.move(exponantleft * ratio, 0.0, exponantleft * ratio, 0.0)
+                bot.move(ratio, 0.0, ratio, 0.0)
                 telemetry.addLine("Turning Left :)")
             } else {
                 bot.move(0.0, 0.0, 0.0, 0.0)
