@@ -107,23 +107,38 @@ class Ruboot (op : LinearOpMode) {
     }
 
     fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
-        fl.power = frPower
-        fr.power = flPower / 2
+        fl.power = flPower / 2
+        fr.power = frPower
         bl.power = brPower
         br.power = blPower
     }
 
-    val armbutt: Boolean = false
+
     fun armmove() {
         val time = SystemClock.uptimeMillis()
-        while (armbutt) {
+        val timeofloop = SystemClock.uptimeMillis() - time
+        Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
+        if (timeofloop > 250) {
+            if (arm.velocity > 90) {
+                arm.power = arm.power - 0.1
+            } else if (arm.power < 90) {
+                arm.power = arm.power + 0.1
+            } else {
+                arm.power = arm.power
+            }
+        }
+    }
+
+    fun armback() {
+        val time = SystemClock.uptimeMillis()
+        while (Instance.gamepad2.left_trigger > 0.1) {
             val timeofloop = SystemClock.uptimeMillis() - time
             Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-            if (timeofloop > 0.25) {
-                if (arm.velocity > 90)
-                    arm.power = arm.power - 0.1
-                else if (arm.power < 90) {
+            if (timeofloop > 250) {
+                if (arm.velocity > 90) {
                     arm.power = arm.power + 0.1
+                } else if (arm.power < 90) {
+                    arm.power = arm.power - 0.1
                 } else {
                     arm.power = arm.power
                 }

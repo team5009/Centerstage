@@ -19,11 +19,9 @@ class NewTiliOp : LinearOpMode() {
         fun tele() {
             val leftY = -gamepad1.left_stick_y.toDouble()
             val leftX = gamepad1.left_stick_x.toDouble() * 1.1
-            val rightY = -gamepad1.right_stick_y.toDouble()
             val rightX = gamepad1.right_stick_x.toDouble()
             val deadZone = 0.2
             val threshHold = 0.15
-
             val denominator = max(abs(leftY) + abs(leftX) + abs(rightX), 1.0)
 
             bot.move(
@@ -41,16 +39,16 @@ class NewTiliOp : LinearOpMode() {
 
             if (gamepad1.a) {
                 telemetry.addLine("S  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
-                ratio = 0.2
+                ratio = -0.2
                 telemetry.update()
             } else if (gamepad1.y) {
                 telemetry.addLine("GOING FAST!")
-                ratio = 1.0
+                ratio = -1.0
                 telemetry.update()
             } else if (gamepad1.start) {
                 telemetry.addLine("N o r m a l  s p e e d")
                 telemetry.update()
-                ratio = 0.8
+                ratio = -0.8
             }
                 if (gamepad2.dpad_down) {
                     bot.intake.power = 0.8
@@ -63,10 +61,12 @@ class NewTiliOp : LinearOpMode() {
                 }
 
             if (gamepad2.right_trigger > 0.1) {
-                bot.arm.power = 0.8
+                bot.arm.power = gamepad2.right_trigger.toDouble()
+                bot.armmove()
                 telemetry.addLine("LIFTING XI")
             } else if (gamepad2.left_trigger > 0.1) {
-                bot.arm.power = -0.8
+                bot.arm.power = gamepad2.left_trigger.toDouble() * -1.0
+                bot.armback()
                 telemetry.addLine("Lowering :u")
             } else {
                 bot.arm.power = 0.0
@@ -80,12 +80,12 @@ class NewTiliOp : LinearOpMode() {
             } else {
                 bot.lift.power = 0.0
             }
-            if (gamepad2.dpad_left){
-                bot.flap.position = 0.2
-            } else if (gamepad2.dpad_right) {
+            if (gamepad2.a){
+                bot.flap.position = 0.32
+            } else if (gamepad2.y) {
                 bot.flap.position = 0.5
             }
-
+            telemetry.addLine("you should kys ( ノ ・ ∀ ・ ) ノ")
             telemetry.update()
         }
     }

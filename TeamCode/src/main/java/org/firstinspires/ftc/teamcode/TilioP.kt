@@ -175,10 +175,10 @@ class TilioP : LinearOpMode() {
             var loc: Int = 0
             var play: Boolean = false
 
-            if (gamepad2.ps && !play) {
+            if (gamepad2.dpad_down && !play) {
                 play = true
             }
-            if (gamepad2.touchpad && play) {
+            if (gamepad2.dpad_up && play) {
                 play = false
             }
 
