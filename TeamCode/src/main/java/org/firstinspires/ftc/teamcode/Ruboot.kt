@@ -135,9 +135,9 @@ class Ruboot (op : LinearOpMode) {
             val timeofloop = SystemClock.uptimeMillis() - time
             Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
             if (timeofloop > 250) {
-                if (arm.velocity > 90) {
+                if (arm.velocity < 90) {
                     arm.power = arm.power + 0.1
-                } else if (arm.power < 90) {
+                } else if (arm.power > 90) {
                     arm.power = arm.power - 0.1
                 } else {
                     arm.power = arm.power
