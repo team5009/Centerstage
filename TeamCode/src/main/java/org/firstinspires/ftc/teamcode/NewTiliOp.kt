@@ -61,21 +61,21 @@ class NewTiliOp : LinearOpMode() {
                 }
 
             if (gamepad2.right_trigger > 0.1) {
-                bot.arm.power = gamepad2.right_trigger.toDouble()
+                bot.arm.power = 0.5
                 bot.armmove()
                 telemetry.addLine("LIFTING XI")
             } else if (gamepad2.left_trigger > 0.1) {
-                bot.arm.power = gamepad2.left_trigger.toDouble() * -1.0
+                bot.arm.power = -0.6
                 bot.armback()
                 telemetry.addLine("Lowering :u")
             } else {
                 bot.arm.power = 0.0
             }
             if (gamepad2.x) {
-                bot.lift.power = -0.5
+                bot.lift.power = -1.0
                 telemetry.addLine("Arm extending ;)")
             } else if (gamepad2.b) {
-                bot.lift.power = 0.5
+                bot.lift.power = 1.0
                 telemetry.addLine("Arm Retracting XD")
             } else {
                 bot.lift.power = 0.0

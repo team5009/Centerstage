@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import kotlin.math.abs
+import kotlin.math.max
 
 class Ruboot (op : LinearOpMode) {
 
@@ -107,42 +108,32 @@ class Ruboot (op : LinearOpMode) {
     }
 
     fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
-        fl.power = flPower / 2
+        fl.power = flPower / 2.1
         fr.power = frPower
-        bl.power = brPower
-        br.power = blPower
+        bl.power = brPower * 1.1
+        br.power = blPower * 1.25
     }
 
 
     fun armmove() {
         val time = SystemClock.uptimeMillis()
-        val timeofloop = SystemClock.uptimeMillis() - time
         Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-        if (timeofloop > 250) {
-            if (arm.velocity > 90) {
-                arm.power = arm.power - 0.1
-            } else if (arm.power < 90) {
-                arm.power = arm.power + 0.1
-            } else {
-                arm.power = arm.power
+            if (arm.velocity > 20) {
+                arm.power += max(0.05, arm.power/10)
+            } else if (arm.velocity < 20) {
+                arm.power -= 0.05
             }
-        }
+        
     }
 
     fun armback() {
         val time = SystemClock.uptimeMillis()
-        while (Instance.gamepad2.left_trigger > 0.1) {
-            val timeofloop = SystemClock.uptimeMillis() - time
             Instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-            if (timeofloop > 250) {
-                if (arm.velocity < 90) {
-                    arm.power = arm.power + 0.1
-                } else if (arm.power > 90) {
-                    arm.power = arm.power - 0.1
-                } else {
-                    arm.power = arm.power
+                if (arm.velocity > -20) {
+                    arm.power -= max(0.05, arm.power/10)
+                } else if (arm.velocity < -20) {
+                    arm.power += 0.05
                 }
-            }
-        }
+
     }
 }
