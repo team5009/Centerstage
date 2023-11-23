@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode
 
+import android.R.attr.height
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
 import org.firstinspires.ftc.vision.VisionProcessor
+import org.opencv.android.Utils
 import org.opencv.core.Core
+import org.opencv.core.CvException
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.Point
@@ -14,13 +21,12 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 
 
-class CameraProcessor(alliance : Int) : VisionProcessor {
+class CameraProcessorBlue : VisionProcessor {
     enum class Position {
         Left, Right, Middle, None, Top, Bottom
     }
     var PosX: Position = Position.Middle
     var PosY: Position = Position.Middle
-    var Area: Double = 0.0
     val contours = ArrayList<MatOfPoint>()
     private var biggestContour = MatOfPoint()
     var differenceX = 0.0
@@ -34,8 +40,6 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
         var height = 0
     }
     private val white = Scalar(255.0, 255.0, 255.0)
-
-    private val color = alliance
     override fun init(width: Int, height: Int, calibration: CameraCalibration) {
     }
 
@@ -55,12 +59,10 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
 
         val thresh = Mat()
 
-        var lowHSV = Scalar(100.0, 90.0, 100.0)
-        var highHSV = Scalar(130.0, 255.0, 200.0)
-        if (color == 1) {
-            lowHSV = Scalar(0.0, 10.0, 0.0) //og is 0
-            highHSV = Scalar(15.0, 255.0, 150.0) //og is 150
-        }
+        //val lowHSV = Scalar(0.0, 10.0, 0.0)
+        //val highHSV = Scalar(15.0, 255.0, 255.0)
+        val lowHSV = Scalar(100.0, 90.0, 0.0)
+        val highHSV = Scalar(130.0, 255.0, 255.0)
         Core.inRange(mat, lowHSV, highHSV, thresh)
 
         if (thresh.empty()) return frame
@@ -76,7 +78,7 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
 
         val scaledThresh = Mat()
         val strictLowHSV = Scalar(0.0, 100.0, 18.0)
-        val strictHighHSV = Scalar(255.0, 255.0, 255.0)
+        val strictHighHSV = Scalar(255.0, 255.0, 200.0)
 
         Core.inRange(scaledMask, strictLowHSV, strictHighHSV, scaledThresh)
 
@@ -124,11 +126,9 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
                     Scalar(255.0, 255.0, 0.0),
                     2
             )
-            Area = (boundRect.width * boundRect.height).toDouble()
         } else {
             Center.x = 0.0
             Center.y = 0.0
-            Area = 0.0
         }
 
         Imgproc.circle(frame, Point(Center.x, Center.y), 3, white, -1)
@@ -189,7 +189,7 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
     fun getCenter() : Center {
         return Center
     }
-    fun getSize() : Double {
-        return Area
+    fun getSize() : Int {
+        return biggestContour.height()
     }
 }

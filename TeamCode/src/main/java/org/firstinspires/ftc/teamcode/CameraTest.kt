@@ -11,8 +11,8 @@ class CameraTest: LinearOpMode() {
 
     override fun runOpMode() {
 
-        val builder = VisionPortal.Builder()
-        val processor = visionLearn()
+        //val builder = VisionPortal.Builder()
+        /*val processor = visionLearn()
         builder.setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
         builder.enableLiveView(true)
         builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
@@ -27,7 +27,7 @@ class CameraTest: LinearOpMode() {
         }
         telemetry.addData("Camera", "Stopped")
         telemetry.update()
-        visionPortal.close()
+        visionPortal.close()*/
 
     }
 }

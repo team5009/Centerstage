@@ -19,7 +19,7 @@ class AprilTagUnitTest : LinearOpMode() {
     private val runtime = ElapsedTime()
     override fun runOpMode() {
 
-        val bot: Autonomous1 = Autonomous1(this, telemetry)
+        val bot: Autonomous1 = Autonomous1(this, 1, telemetry)
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
@@ -43,12 +43,12 @@ class AprilTagUnitTest : LinearOpMode() {
         var bearing: Double = 0.0
         var yaw: Double = 0.0
         var emptyTimes: Int = 0
-        bot.bot.cam.picture2File()
+        //bot.bot.cam.picture2File()
         while (opModeIsActive()) {
 
             //bot.detectProp(1)
-            bot.showRedCenter()
-            bot.detectProp()
+            //bot.showRedCenter()
+            //bot.detectProp(1)
 
             telemetry.update()
             /*var detections: List<AprilTagDetection>? = null
