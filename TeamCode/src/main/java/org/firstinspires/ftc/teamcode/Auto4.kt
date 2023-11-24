@@ -10,10 +10,9 @@ class Auto4 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
     override fun runOpMode() {
-        val cam = Camera()
-
+        val bot = Autonomous2(this, telemetry)
         waitForStart()
-        cam.picture2File()
+        bot.halfOdoPivot(90.0)
     }
 }
 

@@ -14,6 +14,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation
 
 class RobotTest(Instance: LinearOpMode) {
     val fl: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "FL")
@@ -42,13 +45,13 @@ class RobotTest(Instance: LinearOpMode) {
         intake.direction = DcMotorSimple.Direction.FORWARD
 
         fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        fl.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        fl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         fr.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        fr.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        fr.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         bl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        bl.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        bl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         br.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        br.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        br.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_USING_ENCODER
@@ -70,8 +73,7 @@ class RobotTest(Instance: LinearOpMode) {
         cam.initAprilTag(Instance.hardwareMap)
         val imuParameters : IMU.Parameters = IMU.Parameters(
                 RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                        RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+                        Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0.0f, -45.0f, 0.0f, 0)
                 )
         )
 
