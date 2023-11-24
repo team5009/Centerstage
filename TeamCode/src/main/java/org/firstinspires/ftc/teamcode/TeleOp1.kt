@@ -39,25 +39,20 @@ class TeleOp1 (op : LinearOpMode) {
     }
 
     fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
+        bot.fl.power = 1.0
+        bot.fr.power = 1.0
+        bot.bl.power = 1.0
+        bot.br.power = 1.0
+        Instance.sleep(50)
+        bot.fl.power = flPower * 1.1
+        bot.fr.power = frPower * 1.1
+        bot.bl.power = blPower * 1.1
+        bot.br.power = brPower * 1.1
+        Instance.sleep(50)
         bot.fl.power = flPower
         bot.fr.power = frPower
         bot.bl.power = blPower
         bot.br.power = brPower
-        Instance.sleep(25)
-        bot.fl.power = flPower/1.25
-        bot.fr.power = frPower/1.25
-        bot.bl.power = blPower/1.25
-        bot.br.power = brPower/1.25
-        Instance.sleep(50)
-        bot.fl.power = flPower/1.5
-        bot.fr.power = frPower/1.5
-        bot.bl.power = blPower/1.5
-        bot.br.power = brPower/1.5
-        Instance.sleep(50)
-        bot.fl.power = flPower/2
-        bot.fr.power = frPower/2
-        bot.bl.power = blPower/2
-        bot.br.power = brPower/2
     }
 
 

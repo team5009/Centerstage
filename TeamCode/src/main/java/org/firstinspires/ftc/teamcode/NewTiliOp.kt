@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import kotlin.math.abs
 import kotlin.math.max
@@ -13,7 +15,7 @@ class NewTiliOp : LinearOpMode() {
     private val runtime = ElapsedTime()
     override fun runOpMode() {
         val bot = TeleOp1(this)
-        var triggerIsPressed : Boolean = false
+        var triggerIsPressed: Boolean = false
 
         waitForStart()
         var ratio = 0.15
@@ -22,7 +24,7 @@ class NewTiliOp : LinearOpMode() {
             //telemetry.addLine("Caution! This code is experimental and might not work as well. Please do not use in a competition until you are proficient with the controls")
             //telemetry.addLine("-Emmanuel, the local madman")
 
-            tele(ratio, bot)
+            // tele(ratio, bot)
 
             if (gamepad1.a) {
                 telemetry.addLine("S  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
@@ -41,7 +43,7 @@ class NewTiliOp : LinearOpMode() {
             if (gamepad2.dpad_down) {
                 bot.bot.intake.power = 0.8
                 telemetry.addLine("ABSORBING :O")
-            } else if (gamepad2.dpad_up){
+            } else if (gamepad2.dpad_up) {
                 bot.bot.intake.power = -0.8
                 telemetry.addLine("Ew no Xp")
             } else {
@@ -49,14 +51,14 @@ class NewTiliOp : LinearOpMode() {
             }
 
             if (gamepad2.right_trigger > 0.1) {
-                if(!triggerIsPressed) {
+                if (!triggerIsPressed) {
                     triggerIsPressed = true
                     bot.bot.arm.power = 0.5
                 }
                 bot.armmove()
                 telemetry.addLine("LIFTING XI")
             } else if (gamepad2.left_trigger > 0.1) {
-                if(!triggerIsPressed) {
+                if (!triggerIsPressed) {
                     triggerIsPressed = true
                     bot.bot.arm.power = -0.4
                 }
@@ -77,7 +79,7 @@ class NewTiliOp : LinearOpMode() {
                 bot.bot.lift.power = 0.0
             }
 
-            if (gamepad2.a){
+            if (gamepad2.a) {
                 bot.bot.flap.position = 0.32
                 bot.bot.flap.position = 0.5
             } else if (gamepad2.y) {
@@ -86,25 +88,38 @@ class NewTiliOp : LinearOpMode() {
             telemetry.update()
         }
     }
-    fun tele(ratio : Double, bot : TeleOp1) {
-        val leftY = -gamepad1.left_stick_y.toDouble()
-        val leftX = gamepad1.left_stick_x.toDouble() * 1.1
-        val rightX = gamepad1.right_stick_x.toDouble()
-        val denominator = max(abs(leftY) + abs(leftX) + abs(rightX), 1.0)
-        if (leftX < 0.5|| rightX < 0.5|| leftY < 0.5) {
-            bot.move(
-                ((leftY + rightX - leftX) / denominator) * ratio,
-                ((leftY - rightX + leftX) / denominator) * ratio,
-                ((leftY - rightX - leftX) / denominator) * ratio,
-                ((leftY + rightX + leftX) / denominator) * ratio
-            )
-        } else {
-            bot.fastmove(
-                ((leftY + rightX - leftX) / denominator) * ratio,
-                ((leftY - rightX + leftX) / denominator) * ratio,
-                ((leftY - rightX - leftX) / denominator) * ratio,
-                ((leftY + rightX + leftX) / denominator) * ratio
-            )
-        }
+
+        fun tele(ratio: Double, bot: TeleOp1) {
+            val leftY = gamepad1.left_stick_y.toDouble()
+            val leftX = -gamepad1.left_stick_x.toDouble() * 1.1
+            val rightX = gamepad1.right_stick_x.toDouble()
+            val denominator = max(abs(leftY) + abs(leftX) + abs(rightX), 1.0)
+            val robot = RobotTest(this, 0)
+            val flpowert = ((leftY + rightX - leftX) / denominator) * ratio
+            if (leftX < 0.5 || rightX < 0.5 || leftY < 0.5) {
+                bot.move(
+                    ((leftY + rightX - leftX) / denominator) * ratio,
+                    ((leftY - rightX + leftX) / denominator) * ratio,
+                    ((leftY - rightX - leftX) / denominator) * ratio,
+                    ((leftY + rightX + leftX) / denominator) * ratio
+                )
+
+            } else if (flpowert < 0.1) {
+                if (flpowert < robot.fl.velocity) {
+                    bot.move(0.0, 0.0, 0.0, 0.0)
+                    telemetry.addData("velocity", robot.fl.velocity)
+                    telemetry.update()
+                }
+            } else {
+                bot.fastmove(
+                    ((leftY + rightX - leftX) / denominator) * ratio,
+                    ((leftY - rightX + leftX) / denominator) * ratio,
+                    ((leftY - rightX - leftX) / denominator) * ratio,
+                    ((leftY + rightX + leftX) / denominator) * ratio
+                )
+            }
+
+
+
     }
 }
