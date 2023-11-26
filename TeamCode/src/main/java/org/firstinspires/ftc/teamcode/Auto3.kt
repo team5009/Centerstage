@@ -11,7 +11,7 @@ class Auto3 : LinearOpMode() {
     private val runtime = ElapsedTime()
     override fun runOpMode() {
 
-        val bot: Autonomous1 = Autonomous1(this, telemetry)
+        val bot: Autonomous1 = Autonomous1(this, 2,telemetry)
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)

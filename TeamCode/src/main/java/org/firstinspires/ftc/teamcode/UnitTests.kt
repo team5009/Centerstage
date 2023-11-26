@@ -14,7 +14,7 @@ class UnitTests : LinearOpMode() {
     private val runtime = ElapsedTime()
     override fun runOpMode() {
 
-        val bot: Autonomous1 = Autonomous1(this, telemetry)
+        val bot: Autonomous1 = Autonomous1(this, 1,telemetry)
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
@@ -27,7 +27,7 @@ class UnitTests : LinearOpMode() {
         if (opModeIsActive()) {
             bot.move(10.0, 0.7)
             waitForButton()
-            bot.accelerate(10.0, 0.7)
+            //bot.accelerate(10.0, 0.7)
             waitForButton()
            // bot.lifting(12.0, 0.5)
            // waitForButton()

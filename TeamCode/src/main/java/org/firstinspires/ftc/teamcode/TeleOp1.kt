@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
+import kotlin.math.abs
 import kotlin.math.max
 
 class TeleOp1 (op : LinearOpMode) {
 
-    val Instance = op
+    val instance = op
 
     //val cam1: CameraName = Instance.hardwareMap.get("FrontCam") as WebcamName
     val bot : RobotTest = RobotTest(op, 0)
@@ -13,62 +14,44 @@ class TeleOp1 (op : LinearOpMode) {
     init {
 
         bot.fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        bot.fl.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        bot.fl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
     }
-    fun fastmove(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
-        bot.fl.power = flPower/2
-        bot.fr.power = frPower/2
-        bot.bl.power = blPower/2
-        bot.br.power = brPower/2
-        Instance.sleep(50)
-        bot.fl.power = flPower/1.5
-        bot.fr.power = frPower/1.5
-        bot.bl.power = blPower/1.5
-        bot.br.power = brPower/1.5
-        Instance.sleep(25)
-        bot.fl.power = flPower/1.25
-        bot.fr.power = frPower/1.25
-        bot.bl.power = blPower/1.25
-        bot.br.power = brPower/1.25
-        Instance.sleep(10)
-        bot.fl.power = flPower
-        bot.fr.power = frPower
-        bot.bl.power = blPower
-        bot.br.power = brPower
-    }
 
-    fun move(flPower: Double, frPower: Double, blPower: Double, brPower: Double) {
-        bot.fl.power = 1.0
-        bot.fr.power = 1.0
-        bot.bl.power = 1.0
-        bot.br.power = 1.0
-        Instance.sleep(50)
-        bot.fl.power = flPower * 1.1
-        bot.fr.power = frPower * 1.1
-        bot.bl.power = blPower * 1.1
-        bot.br.power = brPower * 1.1
-        Instance.sleep(50)
-        bot.fl.power = flPower
-        bot.fr.power = frPower
-        bot.bl.power = blPower
-        bot.br.power = brPower
+    fun tele(ratio: Double) {
+        val leftY = -instance.gamepad1.left_stick_y.toDouble()
+        val leftX = instance.gamepad1.left_stick_x.toDouble()
+        val rightX = instance.gamepad1.right_stick_x.toDouble()
+        val denominator = max(abs(leftY) + abs(leftX) + abs(rightX), 1.0)
+        if (abs(leftX) > 0.5 || abs(rightX) > 0.5 || abs(leftY) > 0.5) {
+            instance.telemetry.addData("fl: ", (leftY + rightX + leftX) / denominator)
+            instance.telemetry.addData("fr: ", (leftY - rightX - leftX) / denominator)
+            instance.telemetry.addData("bl: ", (leftY - rightX + leftX) / denominator)
+            instance.telemetry.addData("br: ", (leftY + rightX - leftX) / denominator)
+            bot.move(
+                ((leftY - rightX - leftX) / denominator) * ratio,
+                ((leftY + rightX + leftX) / denominator) * ratio,
+                ((leftY + rightX - leftX) / denominator) * ratio,
+                ((leftY - rightX + leftX) / denominator) * ratio
+            )
+        } else {
+            bot.move(0.0, 0.0, 0.0, 0.0)
+        }
     }
-
 
     fun armmove() {
-        if (bot.arm.velocity > 20) {
+        if (bot.arm.velocity > 40) {
             bot.arm.power += max(0.05, bot.arm.power/10)
-        } else if (bot.arm.velocity < 20) {
+        } else if (bot.arm.velocity < 40) {
             bot.arm.power -= 0.05
         }
     }
 
     fun armback() {
-        if (bot.arm.velocity > -20) {
-            bot.arm.power -= max(0.05, bot.arm.power/10)
-        } else if (bot.arm.velocity < -20) {
-            bot.arm.power += 0.05
+        if (bot.arm.velocity > -40) {
+            bot.arm.power += max(0.05, -bot.arm.power/10)
+        } else if (bot.arm.velocity < -40) {
+            bot.arm.power -= 0.05
         }
     }
 }

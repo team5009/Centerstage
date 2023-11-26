@@ -26,12 +26,14 @@ import org.firstinspires.ftc.vision.VisionProcessor
 import kotlin.math.sign
 
 
-class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
+class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
 
     val instance = Instance
     val t = tele
-    val bot = RobotTest(Instance)
-    var bitSave: Bitmap? = null
+    val al = alliance
+    val bot = RobotTest(Instance, alliance)
+
+    val odo = Odometry(bot)
     var lastX: Double = 0.0
     var lastY: Double = 0.0
     var lastTheta: Double = 0.0
@@ -123,51 +125,12 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         resetEncoders()
     }
 
-    fun accelerate(dist: Double, speed: Double) {
-        val decelSpeed = 0.2
-        var cur_speed = 0.3
-        val target = bot.tics_per_inch(dist)
-
-        while (instance.opModeIsActive() && abs(bot.fl.currentPosition) < (target / 2) && cur_speed < speed) {
-            bot.move(cur_speed, cur_speed, cur_speed, cur_speed)
-            cur_speed += 0.05
-            instance.sleep(100)
-        }
-        val startdist = abs(bot.fl.currentPosition)
-        val enddist = target - startdist
-        val distSteps = floor(startdist / ((speed - 0.2) / decelSpeed))
-        bot.move(speed, speed, speed, speed)
-        while (abs(bot.fl.currentPosition) < enddist) {
-            t.addData("FL Position: ", bot.fl.currentPosition)
-            t.addData("End Position: ", enddist)
-            t.addData("target: ", target)
-            t.update()
-        }
-
-        var waypoint = enddist + distSteps
-        while (instance.opModeIsActive() && abs(bot.fl.currentPosition) < target) {
-            cur_speed -= 0.2
-            bot.move(cur_speed, cur_speed, cur_speed, cur_speed)
-            t.addData("FL Position: ", bot.fl.currentPosition)
-            t.addData("End Position: ", enddist)
-            t.addData("target: ", target)
-            t.update()
-            while (instance.opModeIsActive() && abs(bot.fl.currentPosition) < waypoint && abs(bot.fl.currentPosition) < target) {
-            }
-            waypoint += distSteps
-        }
-        bot.move(0.0, 0.0, 0.0, 0.0)
-        resetEncoders()
-
-    }
-
-
     fun pivot(degrees: Double, speed: Double) {
-        val dist = tics_per_degree(degrees)
+        val dist = autoTurnDist(degrees)
         val tics = bot.tics_per_inch(dist)
         bot.move(-speed, speed, speed, -speed)
-        while (instance.opModeIsActive() && kotlin.math.abs(bot.fl.currentPosition) < tics) {
-            t.addData("FL Position", bot.fl.currentPosition)
+        while (instance.opModeIsActive() && abs(bot.br.currentPosition) < tics) {
+            t.addData("BR Position", bot.br.currentPosition)
             t.update()
             instance.sleep(20)
         }
@@ -176,12 +139,10 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         resetEncoders()
     }
 
-    fun tics_per_degree(angle: Double): Double {
+    /*fun tics_per_degree(angle: Double): Double {
         val wheelbase: Double = 6.25
         return bot.tics_per_inch(wheelbase * Math.PI / 180 * angle) // * fudgeFactor
-
-
-    }
+    }*/
 
     fun resetEncoders() {
         bot.fl.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -206,40 +167,6 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         bot.lift.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 
-    fun strafeflbr(dist: Double, power: Double) {
-        val tics = bot.tics_per_inch(dist)
-        bot.move(power, 0.0, 0.0, power)
-        while (instance.opModeIsActive() && kotlin.math.abs(bot.fl.currentPosition) < tics) {
-            instance.sleep(20)
-        }
-
-        bot.move(0.0, 0.0, 0.0, 0.0)
-        resetEncoders()
-    }
-
-    fun strafefrbl(dist: Double, power: Double) {
-        val tics = bot.tics_per_inch(dist)
-        bot.move(0.0, power, power, 0.0)
-        while (instance.opModeIsActive() && kotlin.math.abs(bot.bl.currentPosition) < tics) {
-            instance.sleep(20)
-        }
-
-        bot.move(0.0, 0.0, 0.0, 0.0)
-        resetEncoders()
-    }
-
-    fun strafeside(dist: Double, power: Double) {
-        val tics = bot.tics_per_inch(dist)
-        t.addData("tics: ", tics)
-        t.update()
-        bot.move(-power, -power, power, power)
-        while (instance.opModeIsActive() && kotlin.math.abs(bot.fl.currentPosition) < tics) {
-            instance.sleep(20)
-        }
-
-        bot.move(0.0, 0.0, 0.0, 0.0)
-        resetEncoders()
-    }
     fun intake(power : Double, time: Long) {
         bot.intake.power = power
         instance.sleep(time)
@@ -250,30 +177,6 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         bot.arm.power = power
         instance.sleep(time)
         bot.arm.power = 0.0
-    }
-    fun savePicture() : Bitmap{
-        bitSave = BitmapFactory.decodeFile("/sdcard/VisionPortal-current_frame.png")
-        var hsv = FloatArray(3)
-        Color.colorToHSV(bitSave!!.getPixel(100,100), hsv)
-        val hue = ((hsv[0] / 60.0).roundToInt() % 6)
-        t.addData("Got frame: ", hue + 1)
-        return bitSave!!
-    }
-
-    fun checkTarget(alliance : Int, left : Int, top : Int, width : Int, height : Int) : Double {
-        var hsv = FloatArray(3)
-        val tot = width * height
-        var count = 0
-        for (x in left..left+width) {
-            for (y in top..top+height) {
-                Color.colorToHSV(bitSave!!.getPixel(x, y), hsv)
-                if (((hsv[0] / 60.0).roundToInt() % 6) + 1 == alliance) {
-                    count += 1
-                }
-            }
-        }
-
-        return count.toDouble() / tot.toDouble()
     }
 
     enum class Direction {
@@ -294,48 +197,6 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         }
     }
 
-    fun turnToAngle(angle: Double, power: Double) {
-
-        bot.move(-power/100.0, power/100.0, -power/100.0, power/100.0)
-
-        while (instance.opModeIsActive() &&
-                abs(abs(angle) - getAbsoluteHeading()) > 1.0 // used to be 10
-        )  {
-            instance.telemetry.addData("Current Angle", getAbsoluteHeading());
-            instance.telemetry.addData("Current", getAbsoluteHeading())
-            instance.telemetry.addData("Target", angle)
-            instance.telemetry.addData("Difference", abs(angle - getAbsoluteHeading()))
-            instance.telemetry.update()
-        }
-        bot.move(0.0, 0.0, 0.0, 0.0)
-    }
-
-    fun pivotTurn(angle: Double, power: Double, direction: Direction) {
-
-        val pow: Double = if (angle < 0) -(power/100) else (power/100)
-
-        when (direction) {
-            Direction.LEFT -> {
-                turn(-(pow/2.5), pow)
-            }
-            Direction.RIGHT -> {
-                turn(pow, -(pow/2.5))
-            }
-            else -> {
-                turn(0.0,0.0)
-            }
-        }
-        while (instance.opModeIsActive() &&
-                abs(abs(angle) - getAbsoluteHeading()) > 1.0 // used to be 10
-        )  {
-            t.addData("Current", getAbsoluteHeading())
-            t.addData("Target", angle)
-            t.addData("Difference", abs(angle) - getAbsoluteHeading())
-            t.update()
-        }
-        bot.move(0.0, 0.0, 0.0, 0.0)
-    }
-
     fun convertAngle(angleIn: Double): Double{
         if(angleIn < 0)
         {
@@ -343,7 +204,7 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
         }
         return (angleIn + 180) % 360 - 180;
     }
-    fun pivot(angle: Double, telemetry: Telemetry) {
+    /*fun pivot(angle: Double, telemetry: Telemetry) {
         var heading = angle
         var diff = convertAngle(heading) - convertAngle(bot.rawHeading)
 
@@ -366,42 +227,31 @@ class Autonomous2(Instance: LinearOpMode, tele: Telemetry) {
             telemetry.update()
         }
         bot.move(0.0, 0.0, 0.0, 0.0)
-    }
-    fun getAbsoluteHeading(): Float {
-        val angle = bot.imu.getRobotOrientation(
-                AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle
-
-        return if (angle < 0) {
-            360 - abs(angle)
-        } else {
-            angle
-        }
-    }
-
-    fun turn(leftPow: Double, rightPow:Double) {
-        bot.fl.power = leftPow
-        bot.fr.power = rightPow
-        bot.bl.power = leftPow
-        bot.br.power = rightPow
-    }
-
-    fun showRedCenter() {
-        t.addData("x: ", bot.cam.camProc!!.getCenter().x)
-        t.addData("y: ", bot.cam.camProc!!.getCenter().y)
-    }
+    }*/
 
     fun detectProp() : Int {
         val centerX : Double = bot.cam.camProc!!.getCenter().x
-        if(centerX > 180 && centerX < 300) {
-            t.addData("Prop: ", "Center")
-            return 5
-        } else if(centerX > 400 && centerX < 570) {
-            t.addData("Prop: ", "Right")
-            return 6
+        if (al == 1) {
+            if(centerX > 180 && centerX < 300) {
+                t.addData("Prop: ", "Center")
+                return 5
+            } else if(centerX > 400 && centerX < 570) {
+                t.addData("Prop: ", "Right")
+                return 6
+            }
+            t.addData("Prop: ", "Left")
+            return 4
+        } else {
+            if (centerX > 180 && centerX < 300) {
+                t.addData("Prop: ", "Center")
+                return 2
+            } else if (centerX > 400 && centerX < 570) {
+                t.addData("Prop: ", "Right")
+                return 3
+            }
+            t.addData("Prop: ", "Left")
+            return 1
         }
-        t.addData("Prop: ", "Left")
-        return 4
-
     }
     fun goToAprilTag(distAway : Double, propPos : Int) {
         var targetDist : Double = 0.0

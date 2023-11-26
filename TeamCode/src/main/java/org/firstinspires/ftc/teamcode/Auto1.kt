@@ -68,9 +68,9 @@ class Auto1 : LinearOpMode() {
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
         while (!opModeIsActive()) {
-            //telemetry.addData("Pos: ", bot.detectProp(2))
-            //telemetry.addData("Size", bot.bot.cam.camProc!!.getSize())
-            //telemetry.addData("centerX", bot.bot.cam.camProc!!.getCenter().x)
+            telemetry.addData("Pos: ", bot.detectProp(2))
+            telemetry.addData("Size", bot.bot.cam.camProc!!.getSize())
+            telemetry.addData("centerX", bot.bot.cam.camProc!!.getCenter().x)
             telemetry.update()
         }
         waitForStart()
