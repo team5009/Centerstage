@@ -1,29 +1,19 @@
 package org.firstinspires.ftc.teamcode
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import androidx.core.graphics.get
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
-import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc
-import java.io.FileOutputStream
-import java.io.IOException
 import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.roundToInt
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.vision.VisionProcessor
+import kotlin.math.atan
 import kotlin.math.sign
+import kotlin.math.sqrt
 
 
 class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
@@ -49,9 +39,9 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
     fun waypoint(x : Double, y: Double, theta: Double) {
         val deltaX = x - lastX
         val deltaY = y - lastY
-        val firstAngle = quadrant(deltaX, deltaY, Math.atan(deltaY / deltaX))
+        val firstAngle = quadrant(deltaX, deltaY, atan(deltaY / deltaX))
         pivot(firstAngle, 0.5)
-        move(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 0.5)
+        move(sqrt(deltaX * deltaX + deltaY * deltaY), 0.5)
         pivot(theta, 0.5)
     }
 
@@ -294,10 +284,10 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 val drive: Double = Range.clip((targetDist + 3.0) * 0.03, -0.5, 0.5)
                 val turn: Double = Range.clip(bearing * 0.02, -0.5, 0.5)
                 val strafe: Double = Range.clip(yaw * 0.01, -0.5, 0.5)
-                bot.move((drive - turn - strafe) / 1.5,
-                        (drive + turn + strafe) / 1.5,
-                        (drive - turn + strafe) / 1.5,
-                        (drive + turn - strafe) / 1.5)
+                bot.move((drive - strafe - turn) / 1.5,
+                        (drive + strafe + turn) / 1.5,
+                        (drive + strafe - turn) / 1.5,
+                        (drive - strafe + turn) / 1.5)
 
             }
 

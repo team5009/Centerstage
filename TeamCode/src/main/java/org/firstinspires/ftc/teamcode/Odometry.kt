@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -20,6 +22,8 @@ class Odometry (robot: RobotTest) {
     private var lastLeft = 0.0
     private var lastRight = 0.0
     private var lastBack = 0.0
+
+
     fun calculate() {
         lastBack = currentBack
         lastLeft = currentLeft

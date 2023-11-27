@@ -27,7 +27,7 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
 
     val leftEncoder : DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "BL")
     val rightEncoder: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "BR")
-    val backEncoder: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "FL")
+    val backEncoder: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "FR")
 
     val lift: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "elevato")
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
@@ -40,8 +40,8 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
 
     init {
         // Set Each Wheel Direction
-        fl.direction = DcMotorSimple.Direction.FORWARD
-        fr.direction = DcMotorSimple.Direction.REVERSE
+        fl.direction = DcMotorSimple.Direction.REVERSE
+        fr.direction = DcMotorSimple.Direction.FORWARD
         bl.direction = DcMotorSimple.Direction.REVERSE
         br.direction = DcMotorSimple.Direction.FORWARD
 
@@ -52,7 +52,6 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
         leftEncoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         rightEncoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         backEncoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-
 
         lift.direction = DcMotorSimple.Direction.FORWARD
         arm.direction = DcMotorSimple.Direction.FORWARD
@@ -75,8 +74,6 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
         arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         arm.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-
-
         // Behaviour when Motor Power = 0
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -97,7 +94,7 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
         imu.initialize(imuParameters)
         imu.resetYaw()
 
-        //flap = 0.5
+        flap.power = 0.0
     }
 
     fun tics_per_inch(inches: Double): Double {
