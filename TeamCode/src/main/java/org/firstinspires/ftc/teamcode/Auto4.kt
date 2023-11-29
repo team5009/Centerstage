@@ -17,7 +17,7 @@ class Auto4 : LinearOpMode() {
 
         bot.armmove()
         sleep(500)
-        bot.bot.flap.position = 0.3
+        // bot.bot.flap.position = 0.3
         sleep(2000)
         //cam.picture2File()
     }

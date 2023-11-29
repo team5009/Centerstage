@@ -17,11 +17,11 @@ class Auto2 : LinearOpMode() {
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
         while (!opModeIsActive()) {
-            /* telemetry.addData("Pos: ", bot.detectProp(1))
+            telemetry.addData("Pos: ", bot.detectProp(1))
             telemetry.addData("Size", bot.bot.cam.camProc!!.getSize())
-            telemetry.addData("centerX", bot.bot.cam.camProc!!.getCenter().x)*/
+            telemetry.addData("centerX", bot.bot.cam.camProc!!.getCenter().x)
             telemetry.update()
-        } /*
+        }
         waitForStart()
         runtime.reset()
         //visionPortal.saveNextFrameRaw("new_frame")
@@ -34,9 +34,9 @@ class Auto2 : LinearOpMode() {
 
 
         if(opModeIsActive()) {
-            //val propPos : Int = bot.detectProp(1)
-           //bot.switchProc(bot.bot.cam.camProc!!)
-            //if (propPos == 5) {
+            val propPos : Int = bot.detectProp(1)
+            bot.switchProc(bot.bot.cam.camProc!!)
+            if (propPos == 5) {
                 bot.move(49.0,0.4)
                 //bot.intake(-0.6, 1000)
                 bot.move(7.0, 0.5)
@@ -52,10 +52,10 @@ class Auto2 : LinearOpMode() {
                 heading = bot.goToAprilTag(6.0, 5)
             } else {
                 bot.move(30.0, 0.4)
-                //if(propPos == 4) {
+                if(propPos == 4) {
                     bot.move(1.0, 0.4)
                     bot.pivot(120.0, 0.3)
-                   // bot.intake(-0.6, 1000)
+                    bot.intake(-0.6, 1000)
                     bot.pivot(120.0, -0.3)
                     sleep(500)
                     bot.move(15.0, 0.4)
@@ -70,7 +70,7 @@ class Auto2 : LinearOpMode() {
                 } else {
                     bot.move(2.0, 0.4)
                     bot.pivot(80.0, -0.5)
-                    //bot.intake(-0.8, 1000)
+                    bot.intake(-0.8, 1000)
                     bot.move(25.0, 0.4)
                     heading = bot.goToAprilTag(6.5, 4)
                 }
@@ -79,25 +79,25 @@ class Auto2 : LinearOpMode() {
             telemetry.update()
             telemetry.addLine("Finished go to Apriltag")
             telemetry.update()
-            //bot.switchProc(bot.bot.cam.aprilTag!!)
+            bot.switchProc(bot.bot.cam.aprilTag!!)
             bot.pivot(abs(heading)* 10, 0.3 * bot.sign(heading).toDouble())
             sleep(500)
-            //bot.intake(0.6, -1L)
-            //bot.armmove()
-            //bot.intake(0.0,100L)
+            bot.intake(0.6, -1L)
+            bot.armmove()
+            bot.intake(0.0,100L)
             sleep(500)
             //bot.bot.flap.position = 0.3
             sleep(500)
-            //bot.armback()
+            bot.armback()
             sleep(1000)
-           // bot.pivot(80.0, -0.4)
-          //  sleep(500)
-          //  bot.move(20.0, 0.4)
+            bot.pivot(80.0, -0.4)
+            sleep(500)
+            bot.move(20.0, 0.4)
         }
-        //bot.bot.cam.visionPortal!!.close()
+        bot.bot.cam.visionPortal!!.close()
         telemetry.addData("Status", "Ended")
         telemetry.update()
-    }*/
     }
 }
+
 
