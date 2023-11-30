@@ -25,25 +25,20 @@ class NewTiliOp : LinearOpMode() {
             //telemetry.addLine("-Emmanuel, the local madman")
 
             bot.tele(ratio)
-            //marvel upon the glory of "modes" (control award??)
+
             if (gamepad1.a && !gamepad1.start) {
-                telemetry.addLine("s  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
+                telemetry.addLine("S  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
                 ratio = 0.4
                 telemetry.update()
             } else if (gamepad1.y) {
-                telemetry.addLine("N o r m a l  S p e e d")
+                telemetry.addLine("N o r m a l  s p e e d")
                 telemetry.update()
                 ratio = 0.6
-            } else if (gamepad1.dpad_down) {
-                telemetry.addLine("FASTMODE")
-                telemetry.update()
-                ratio = 1.0
             }
 
-            //intake
             if (gamepad2.dpad_down) {
                 bot.bot.intake.power = 0.8
-                bot.bot.flap.power = -0.7
+                bot.bot.flap.power = -1.0
                 telemetry.addLine("ABSORBING :O")
             } else if (gamepad2.dpad_up) {
                 bot.bot.intake.power = -0.8
@@ -51,7 +46,7 @@ class NewTiliOp : LinearOpMode() {
             } else {
                 bot.bot.intake.power = 0.0
             }
-            //arm
+
             if (gamepad2.right_trigger > 0.1) {
                 if (!triggerIsPressed) {
                     triggerIsPressed = true
@@ -70,7 +65,7 @@ class NewTiliOp : LinearOpMode() {
                 triggerIsPressed = false
                 bot.bot.arm.power = 0.0
             }
-            //elevato
+
             if (gamepad2.x) {
                 bot.bot.lift.power = -1.0
                 telemetry.addLine("Arm extending ;)")
@@ -80,7 +75,7 @@ class NewTiliOp : LinearOpMode() {
             } else {
                 bot.bot.lift.power = 0.0
             }
-            //outake
+
             if (gamepad2.a) {
                 bot.bot.flap.power = 1.0
             } /*else if (gamepad2.y) {

@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.ElapsedTime
 
 @Autonomous(name = "Auto3", group = "Linear OpMode")
-@Disabled
+//@Disabled
 class Auto3 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
     override fun runOpMode() {
 
-        val bot: Autonomous1 = Autonomous1(this, 1, telemetry)
+        val bot: Autonomous1 = Autonomous1(this, 2,telemetry)
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
@@ -23,14 +22,13 @@ class Auto3 : LinearOpMode() {
         telemetry.update()
         // run until the end of the match (driver presses STOP)
         if (opModeIsActive()) {
-            val propPos = 2
-            //bot.detectProp()
-            bot.move(10.0, 0.7)
+            val propPos = 2 //bot.detectProp()
+            bot.move(10.0, 0.4)
             sleep(1000)
             if(propPos == 2){
-                bot.strafeside(10.0, -0.6)
-                bot.move(20.0, 0.7)
-                bot.strafeside(4.0, 0.6)
+                bot.strafeside(10.0, -0.3)
+                bot.move(20.0, 0.4)
+                bot.strafeside(4.0, 0.3)
                 bot.intake(0.8, 250)
                 bot.move(5.0, 0.7)
                 bot.strafeside(0.6, 0.6)

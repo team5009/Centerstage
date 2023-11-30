@@ -86,9 +86,9 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
 
         cam.initAprilTag(Instance.hardwareMap)
         val imuParameters : IMU.Parameters = IMU.Parameters(
-            RevHubOrientationOnRobot(
-                Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0.0f, -45.0f, 0.0f, 0)
-            )
+                RevHubOrientationOnRobot(
+                        Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0.0f, -45.0f, 0.0f, 0)
+                )
         )
 
         imu.initialize(imuParameters)

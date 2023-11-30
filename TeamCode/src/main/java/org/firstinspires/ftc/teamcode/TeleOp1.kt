@@ -18,7 +18,7 @@ class TeleOp1 (op : LinearOpMode) {
 
     }
 
-    fun tele(ratio: Double) { //control award?
+    fun tele(ratio: Double) {
         val leftY = -instance.gamepad1.left_stick_y.toDouble()
         val leftX = instance.gamepad1.left_stick_x.toDouble()
         val rightX = instance.gamepad1.right_stick_x.toDouble()
@@ -33,7 +33,8 @@ class TeleOp1 (op : LinearOpMode) {
         } else {
             bot.move(0.0, 0.0, 0.0, 0.0)
         }
-    }   //mention both for control award
+    }
+
     fun armmove() {
         if (bot.arm.velocity > 40) {
             bot.arm.power += max(0.05, bot.arm.power/10)
