@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.vision.VisionProcessor
 import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.roundToInt
 
 class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
@@ -328,11 +329,11 @@ class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
         val centerX : Double = bot.cam.camProc!!.getCenter().x
         val size = bot.cam.camProc!!.getSize()
         if (alliance == 1) {
-            if (size > 5000) {
+            if (size > 1000) {
                 if (centerX > 200 && centerX < 500) {
                     t.addData("Prop: ", "Center")
                     return 5
-                } else {
+                } else if (centerX < 200 && centerX > 50) {
                     t.addData("Prop: ", "Left")
                     return 4
                 }
@@ -341,18 +342,24 @@ class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
                 return 6
             }
         } else {
-            if (size > 5000) {
+            if (size > 1000) {
                 if (centerX > 200 && centerX < 500) {
                     t.addData("Prop: ", "Center")
                     return 2
-                } else {
+                } else if (centerX < 700 && centerX > 500) {
                     t.addData("Prop: ", "Right")
                     return 3
                 }
             }
-            t.addData("Prop: ", "Left")
-            return 1
         }
+
+            if (8 - (alliance * alliance * 2) > 3) {
+                t.addData("Prop: ", "Right")
+            } else {
+                t.addData("Prop: ", "Left")
+            }
+            return 8 - (alliance * alliance * 2)
+
     }
 
     fun goToAprilTag(distAway : Double, propPos : Int) : Double {

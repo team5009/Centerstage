@@ -47,7 +47,7 @@ class CameraProcessor(alliance : Int) : VisionProcessor {
         Screen.width = frame.width()
 
         val heightArray: DoubleArray = doubleArrayOf(0.0 * fifthY, 1.0 * fifthY, 2.0 * fifthY, 3.0 * fifthY, 4.0 * fifthY, 5.0 * fifthY)
-        val widthArray: DoubleArray = doubleArrayOf(centerX - 15, centerX + 15)
+        val widthArray: DoubleArray = doubleArrayOf(centerX - 20, centerX + 20) //og is 15
         val mat = Mat()
 
         Imgproc.cvtColor(frame, mat, Imgproc.COLOR_RGB2HSV)

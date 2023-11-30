@@ -60,7 +60,7 @@ class Auto1 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
     override fun runOpMode() {
-        //val processor = CameraProcessor(2)
+        val processor = CameraProcessor(2)
         val bot: Autonomous1 = Autonomous1(this, 2, telemetry)
         var heading: Double = 0.0
 
@@ -81,14 +81,14 @@ class Auto1 : LinearOpMode() {
         telemetry.update()
         //visionPortal.setProcessorEnabled(processor, false)
         //visionPortal.stopStreaming()
-        // run until the end of the match (driver presses STOP)
+        //run until the end of the match (driver presses STOP)
 
 
-        /*if(opModeIsActive()) {
-            val propPos : Int = bot.detectProp(2)
+        if (opModeIsActive()) {
+            val propPos: Int = bot.detectProp(2)
             bot.switchProc(bot.bot.cam.camProc!!)
             if (propPos == 2) {
-                bot.move(49.0,0.4)
+                bot.move(49.0, 0.4)
                 bot.intake(-0.6, 1000)
                 bot.move(7.0, 0.5)
                 sleep(500)
@@ -103,7 +103,7 @@ class Auto1 : LinearOpMode() {
                 heading = bot.goToAprilTag(6.0, propPos)
             } else {
                 bot.move(30.0, 0.4)
-                if(propPos == 1) {
+                if (propPos == 1) {
                     bot.pivot(60.0, -0.3)
                     bot.intake(-0.8, 1000)
                     bot.pivot(80.0, 0.3)
@@ -114,8 +114,8 @@ class Auto1 : LinearOpMode() {
                     sleep(500)
                     bot.move(25.0, 0.4)
                     sleep(500)
-                    //bot.pivot(20.0, 0.4)
-                    //sleep(500)
+                    bot.pivot(20.0, 0.4)
+                    sleep(500)
                     heading = bot.goToAprilTag(5.0, propPos)
                 } else {
                     bot.pivot(120.0, 0.5)
@@ -129,13 +129,13 @@ class Auto1 : LinearOpMode() {
             telemetry.addData("Finished go to Apriltag", heading)
             telemetry.update()
             bot.switchProc(bot.bot.cam.aprilTag!!)
-            bot.pivot(abs(heading)*10, 0.3 * bot.sign(heading).toDouble())
+            bot.pivot(abs(heading) * 10, 0.3 * bot.sign(heading).toDouble())
             sleep(500)
             bot.intake(0.6, -1L)
             bot.armmove()
-            bot.intake(0.0,100L)
+            bot.intake(0.0, 100L)
             sleep(500)
-            bot.bot.flap.position = 0.3
+            //bot.bot.flap.position = 0.3
             sleep(2000)
             bot.armback()
             sleep(1000)
@@ -146,7 +146,6 @@ class Auto1 : LinearOpMode() {
         bot.bot.cam.visionPortal!!.close()
         telemetry.addData("Status", "Ended")
         telemetry.update()
-    }*/
     }
 }
 
