@@ -228,9 +228,10 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             } else if(centerX > 225 && centerX < 275) {
                 t.addData("Prop: ", "Right")
                 return 6
-            }else if(centerX > 75 && centerX < 125) {
+            }//else if(centerX > 75 && centerX < 125) {
                 t.addData("Prop: ", "Left")
                 return 4
+            //}
         } else {
             if (centerX > 180 && centerX < 300) {
                 t.addData("Prop: ", "Center")
@@ -242,7 +243,6 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             t.addData("Prop: ", "Left")
             return 1
         }
-        t.addData("screen size ", bot.cam.camProc!!.getCenter().x)
     }
     fun goToAprilTag(distAway : Double, propPos : Int) {
         var targetDist : Double = 0.0
