@@ -34,7 +34,12 @@ class NewTiliOp : LinearOpMode() {
                 telemetry.addLine("N o r m a l  s p e e d")
                 telemetry.update()
                 ratio = 0.6
+            } else if (gamepad1.dpad_up && gamepad1.dpad_down) {
+                telemetry.addLine("FASTMODE")
+                telemetry.update()
+                ratio = 1.0
             }
+
 
             if (gamepad2.dpad_down) {
                 bot.bot.intake.power = 0.8

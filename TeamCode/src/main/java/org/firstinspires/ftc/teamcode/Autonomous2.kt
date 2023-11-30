@@ -222,15 +222,15 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
     fun detectProp() : Int {
         val centerX : Double = bot.cam.camProc!!.getCenter().x
         if (al == 1) {
-            if(centerX > 180 && centerX < 300) {
+            if(centerX > 150 && centerX < 200) {
                 t.addData("Prop: ", "Center")
                 return 5
-            } else if(centerX > 400 && centerX < 570) {
+            } else if(centerX > 225 && centerX < 275) {
                 t.addData("Prop: ", "Right")
                 return 6
-            }
-            t.addData("Prop: ", "Left")
-            return 4
+            }else if(centerX > 75 && centerX < 125) {
+                t.addData("Prop: ", "Left")
+                return 4
         } else {
             if (centerX > 180 && centerX < 300) {
                 t.addData("Prop: ", "Center")
@@ -242,6 +242,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             t.addData("Prop: ", "Left")
             return 1
         }
+        t.addData("screen size ", bot.cam.camProc!!.getCenter().x)
     }
     fun goToAprilTag(distAway : Double, propPos : Int) {
         var targetDist : Double = 0.0

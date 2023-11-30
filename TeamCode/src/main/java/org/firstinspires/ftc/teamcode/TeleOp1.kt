@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 class TeleOp1 (op : LinearOpMode) {
 
