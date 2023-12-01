@@ -328,7 +328,7 @@ class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
     fun detectProp(alliance : Int) : Int {
         val centerX : Double = bot.cam.camProc!!.getCenter().x
         val size = bot.cam.camProc!!.getSize()
-        if (alliance == 1) {
+        if (alliance == 1) { // red side
             if (size > 1000) {
                 if (centerX > 200 && centerX < 500) {
                     t.addData("Prop: ", "Center")
@@ -341,7 +341,7 @@ class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
                 t.addData("Prop: ", "Right")
                 return 6
             }
-        } else {
+        } else { //blue side
             if (size > 1000) {
                 if (centerX > 200 && centerX < 500) {
                     t.addData("Prop: ", "Center")
@@ -352,13 +352,13 @@ class Autonomous1(Instance: LinearOpMode,alliance : Int, tele: Telemetry) {
                 }
             }
         }
-
-            if (8 - (alliance * alliance * 2) > 3) {
+            //if on the right of red or left of blue
+            if ((8 - (alliance * alliance * 2 - (alliance - 1))) > 3) {
                 t.addData("Prop: ", "Right")
             } else {
                 t.addData("Prop: ", "Left")
             }
-            return 8 - (alliance * alliance * 2)
+            return (8 - (alliance * alliance * 2 - (alliance - 1)))
 
     }
 

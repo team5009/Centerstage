@@ -279,7 +279,7 @@ class SimpleOdoMovement (private val myOpMode: LinearOpMode, robot : RobotTest, 
         private const val DRIVE_DEADBAND = 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
         private const val DRIVE_MAX_AUTO = 0.6 // "default" Maximum Axial power limit during autonomous
 
-        private const val STRAFE_GAIN = 0.08 // Strength of lateral position control
+        private const val STRAFE_GAIN = 0.12 // Strength of lateral position control
         private const val STRAFE_ACCEL = 1.5 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
         private const val STRAFE_TOLERANCE = 1.0 // Controller is is "inPosition" if position error is < +/- this amount
         private const val STRAFE_DEADBAND = 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE

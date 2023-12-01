@@ -44,6 +44,7 @@ class NewTiliOp : LinearOpMode() {
             if (gamepad2.dpad_down) {
                 bot.bot.intake.power = 0.8
                 bot.bot.flap.power = -1.0
+                bot.bot.arm.power = -0.1
                 telemetry.addLine("ABSORBING :O")
             } else if (gamepad2.dpad_up) {
                 bot.bot.intake.power = -0.8

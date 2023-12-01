@@ -51,4 +51,10 @@ class TeleOp1 (op : LinearOpMode) {
             bot.arm.power -= 0.05
         }
     }
+
+    fun playgab() {
+        instance.telemetry.addLine(" o ")
+        instance.telemetry.addLine("/| ")
+        instance.telemetry.addLine(" o ")
+    }
 }

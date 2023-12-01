@@ -219,31 +219,43 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         bot.move(0.0, 0.0, 0.0, 0.0)
     }*/
 
-    fun detectProp() : Int {
+    fun detectProp(alliance : Int) : Int {
         val centerX : Double = bot.cam.camProc!!.getCenter().x
-        if (al == 1) {
-            if(centerX > 150 && centerX < 200) {
-                t.addData("Prop: ", "Center")
-                return 5
-            } else if(centerX > 225 && centerX < 275) {
+        val size = bot.cam.camProc!!.getSize()
+        if (alliance == 1) { // red side
+            if (size > 1000) {
+                if (centerX > 200 && centerX < 500) {
+                    t.addData("Prop: ", "Center")
+                    return 5
+                } else if (centerX < 200 && centerX > 50) {
+                    t.addData("Prop: ", "Left")
+                    return 4
+                }
+            } else {
                 t.addData("Prop: ", "Right")
                 return 6
-            }//else if(centerX > 75 && centerX < 125) {
-                t.addData("Prop: ", "Left")
-                return 4
-            //}
-        } else {
-            if (centerX > 180 && centerX < 300) {
-                t.addData("Prop: ", "Center")
-                return 2
-            } else if (centerX > 400 && centerX < 570) {
-                t.addData("Prop: ", "Right")
-                return 3
             }
-            t.addData("Prop: ", "Left")
-            return 1
+        } else { //blue side
+            if (size > 1000) {
+                if (centerX > 200 && centerX < 500) {
+                    t.addData("Prop: ", "Center")
+                    return 2
+                } else if (centerX < 700 && centerX > 500) {
+                    t.addData("Prop: ", "Right")
+                    return 3
+                }
+            }
         }
+        //if on the right of red of left of blue
+        if ((8 - (alliance * alliance * 2 - (alliance - 1))) > 3) {
+            t.addData("Prop: ", "Right")
+        } else {
+            t.addData("Prop: ", "Left")
+        }
+        return (8 - (alliance * alliance * 2 - (alliance - 1)))
+
     }
+
     fun goToAprilTag(distAway : Double, propPos : Int) {
         var targetDist : Double = 0.0
         var bearing : Double = 0.0
