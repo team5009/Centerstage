@@ -17,26 +17,22 @@ class Auto4 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
     override fun runOpMode() {
-        val bot = Autonomous2(this, 0, telemetry)
+        val bot = Autonomous2(this, 1, telemetry)
         val odoMovement = SimpleOdoMovement(this, bot.bot, bot.odo)
         odoMovement.initialize(true)
         while (!opModeIsActive()) {
             telemetry.addData("lEnc: ", bot.bot.leftEncoder.currentPosition)
             telemetry.addData("rEnc: ", bot.bot.rightEncoder.currentPosition)
             telemetry.addData("bEnc: ", bot.bot.backEncoder.currentPosition)
-            telemetry.addData("imu av", bot.bot.imu.getRobotAngularVelocity(AngleUnit.DEGREES))
+            telemetry.addData("center ?", bot.bot.cam.camProc!!.getCenter().x)
+            telemetry.addData("Prop ?", bot.detectProp(1))
             telemetry.addData("x: ", bot.odo.location.x)
             telemetry.addData("y: ", bot.odo.location.y)
             telemetry.addData("rot: ", bot.odo.location.rot)
             telemetry.update()
         }
         waitForStart()
-        odoMovement.drive(5.0, 0.8, 0.5)
-        sleep(1000)
-        odoMovement.strafe(5.0, 0.8, 0.25)
-        sleep(1000)
-        bot.halfOdoPivot(90.0)
-        sleep(1000)
+        bot.goToAprilTag(5.0,1, odoMovement)
         while(opModeIsActive()) {
             bot.odo.calculate()
             telemetry.addData("lEnc: ",bot.bot.leftEncoder.currentPosition)

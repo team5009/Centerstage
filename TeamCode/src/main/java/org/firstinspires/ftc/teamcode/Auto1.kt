@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.vision.VisionPortal
 import java.io.File
 import kotlin.math.abs
@@ -59,93 +60,74 @@ import kotlin.math.abs
 class Auto1 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
-    override fun runOpMode() {
-        val processor = CameraProcessor(2)
-        val bot: Autonomous1 = Autonomous1(this, 2, telemetry)
-        var heading: Double = 0.0
 
-        telemetry.addData("Status", "Initialized")
-        telemetry.update()
-        // Wait for the game to start (driver presses PLAY)
+    override fun runOpMode() {
+        val bot = Autonomous2(this, 2, telemetry)
+        val odoMovement = SimpleOdoMovement(this, bot.bot, bot.odo)
+        odoMovement.initialize(true)
         while (!opModeIsActive()) {
-            telemetry.addData("Pos: ", bot.detectProp(2))
-            telemetry.addData("Size", bot.bot.cam.camProc!!.getSize())
-            telemetry.addData("centerX", bot.bot.cam.camProc!!.getCenter().x)
+            telemetry.addData("lEnc: ", bot.bot.leftEncoder.currentPosition)
+            telemetry.addData("rEnc: ", bot.bot.rightEncoder.currentPosition)
+            telemetry.addData("bEnc: ", bot.bot.backEncoder.currentPosition)
+            telemetry.addData("imu av", bot.bot.imu.getRobotAngularVelocity(AngleUnit.DEGREES))
+            telemetry.addData("x: ", bot.odo.location.x)
+            telemetry.addData("y: ", bot.odo.location.y)
+            telemetry.addData("rot: ", bot.odo.location.rot)
             telemetry.update()
         }
         waitForStart()
-        runtime.reset()
-        //visionPortal.saveNextFrameRaw("new_frame")
-        //sleep(10000)
-        telemetry.addData("Status", "Started")
-        telemetry.update()
-        //visionPortal.setProcessorEnabled(processor, false)
-        //visionPortal.stopStreaming()
-        //run until the end of the match (driver presses STOP)
-
-
-        if (opModeIsActive()) {
-            val propPos: Int = bot.detectProp(2)
-            bot.switchProc(bot.bot.cam.camProc!!)
-            if (propPos == 2) {
-                bot.move(49.0, -0.4)
-                bot.intake(-0.6, 1000)
-                bot.move(7.0, -0.5)
-                sleep(500)
-                bot.move(3.0, 0.4)
-                sleep(500)
-                bot.pivot(100.0, -0.3)
-                sleep(500)
-                bot.move(15.0, -0.4)
-                sleep(500)
-                bot.pivot(25.0, -0.3)
-                sleep(500)
-                heading = bot.goToAprilTag(6.0, propPos)
-            } else {
-                bot.move(30.0, 0.4)
-                if (propPos == 1) {
-                    bot.pivot(60.0, 0.3)
-                    bot.intake(-0.8, 1000)
-                    bot.pivot(80.0, -0.3)
-                    sleep(500)
-                    bot.move(15.0, -0.4)
-                    sleep(500)
-                    bot.pivot(120.0, -0.3)
-                    sleep(500)
-                    bot.move(25.0, -0.4)
-                    sleep(500)
-                    bot.pivot(20.0, -0.4)
-                    sleep(500)
-                    heading = bot.goToAprilTag(5.0, propPos)
-                } else {
-                    bot.pivot(120.0, -0.5)
-                    bot.intake(-0.8, 1000)
-                    bot.move(25.0, -0.4)
-                    heading = bot.goToAprilTag(6.5, propPos)
-                }
-
-            }
-            telemetry.update()
-            telemetry.addData("Finished go to Apriltag", heading)
-            telemetry.update()
-            bot.switchProc(bot.bot.cam.aprilTag!!)
-            bot.pivot(abs(heading) * 10, 0.3 * bot.sign(heading).toDouble())
-            sleep(500)
-            bot.intake(0.6, -1L)
-            bot.armmove()
-            bot.intake(0.0, 100L)
-            sleep(500)
-            //bot.bot.flap.position = 0.3
-            sleep(2000)
-            bot.armback()
-            sleep(1000)
-            bot.pivot(80.0, 0.4)
-            sleep(500)
-            bot.move(20.0, 0.4)
+        val propPos = bot.detectProp(2)
+        if (propPos == 1) {
+            odoMovement.drive(-15.0, 0.4, 0.25)
+            odoMovement.drive(-5.0, 0.2, 0.25)
+            bot.halfOdoPivot(-70.0)
+            sleep(250)
+            odoMovement.strafe(4.0, 0.3, 0.25)
+            odoMovement.drive(-7.0, 0.35, 0.25)
+            odoMovement.drive(7.0, 0.35, 0.25)
+            bot.halfOdoPivot(0.0)
+            sleep(250)
+            odoMovement.strafe(-24.0, 0.3, 0.25)
+            odoMovement.drive(4.0, 0.35, 0.25)
+            bot.halfOdoPivot(-90.0)
+            odoMovement.drive(-16.0, 0.3, 0.25)
+        } else if (propPos == 2) {
+            odoMovement.drive(-15.0, 0.25, 0.25)
+            odoMovement.drive(-12.0, 0.3, 0.25)
+            odoMovement.drive(2.0, 0.3, 0.25)
+            bot.halfOdoPivot(-90.0)
+            sleep(250)
+            odoMovement.drive(-41.0, 0.3, 0.25)
+        } else {
+            odoMovement.drive(-21.0, 0.3, 0.25)
+            odoMovement.drive(2.0, 0.3, 0.25)
+            odoMovement.strafe(-14.0, 0.3,0.25)
+            odoMovement.drive(-10.0, 0.3, 0.25)
+            odoMovement.strafe(16.0, 0.3, 0.25)
+            odoMovement.strafe(-14.0,0.3, 0.25)
+            odoMovement.drive(-3.0, 0.3, 0.25)
+            bot.halfOdoPivot(-90.0)
+            odoMovement.drive(-26.0, 0.3, 0.25)
         }
-        bot.bot.cam.visionPortal!!.close()
-        telemetry.addData("Status", "Ended")
-        telemetry.update()
+        bot.armmove()
+        bot.bot.flap.power = 0.8
+        sleep(3000)
+        bot.bot.flap.power = 0.0
+        bot.armback()
+
+
+        /*odoMovement.strafe(5.0, 0.8, 0.25)
+   bot.halfOdoPivot(90.0) */
+        while (opModeIsActive()) {
+            bot.odo.calculate()
+            telemetry.addData("lEnc: ", bot.bot.leftEncoder.currentPosition)
+            telemetry.addData("rEnc: ", bot.bot.rightEncoder.currentPosition)
+            telemetry.addData("bEnc: ", bot.bot.backEncoder.currentPosition)
+            telemetry.addData("x: ", bot.odo.location.x)
+            telemetry.addData("y: ", bot.odo.location.y)
+            telemetry.addData("rot: ", bot.odo.location.rot)
+            telemetry.update()
+        }
     }
 }
 

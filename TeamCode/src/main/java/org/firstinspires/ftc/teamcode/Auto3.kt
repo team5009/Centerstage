@@ -50,7 +50,7 @@ class Auto3 : LinearOpMode() {
             bot.pivot(90.0, 0.7)
             bot.move(60.0, 0.8)
             bot.strafeside(20.0, -0.6)
-            bot.goToAprilTag(10.0, propPos)
+        //    bot.goToAprilTag(10.0, propPos)
         }
         telemetry.addData("Status", "Ended")
         telemetry.update()

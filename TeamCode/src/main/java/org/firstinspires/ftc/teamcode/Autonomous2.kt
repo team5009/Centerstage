@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.vision.VisionProcessor
+import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.sign
 import kotlin.math.sqrt
@@ -46,10 +48,13 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
     }
 
     fun halfOdoPivot(angle: Double) {
-        var heading = angle
-        var diff = convertAngle(heading) - convertAngle(bot.rawHeading)
+        val encoderToDegree = 180 / 1000.0
+        var heading = convertAngle(angle)
+        var currentHeading = odo.location.rot * encoderToDegree
+        var diff = heading - currentHeading
         val leftTarget = bot.br.currentPosition + autoTurnDist(diff)
         val rightTarget = bot.bl.currentPosition - autoTurnDist(diff)
+
         /*
         while (instance.opModeIsActive() && abs(diff) > 2) {
             //telemetry.addData("difference", diff)
@@ -65,13 +70,20 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             t.update()
         }*/
         var pow = 0.4 * (abs(diff) / 100)
+
         while (instance.opModeIsActive()
-                && abs(leftTarget - bot.bl.currentPosition) > 10.0
-                && abs(rightTarget - bot.br.currentPosition) > 10.0) {
-            pow = 0.3 * (abs(diff) / 100)
+                && abs(currentHeading - heading) > 3) {
+                //&& abs(leftTarget - bot.bl.currentPosition) > 10.0
+                //&& abs(rightTarget - bot.br.currentPosition) > 10.0*/) {
+            pow = 0.4 * (abs(diff) / 100)
             bot.move(pow * sign(diff), pow * -sign(diff), pow * sign(diff), pow * -sign(diff))
             t.addData("Left :", leftTarget - bot.bl.currentPosition)
+            t.addData("Expected :", diff)
+            t.addData("start angle :", currentHeading)
+            t.addData("Target :", leftTarget)
             t.update()
+            odo.calculate()
+            currentHeading = odo.location.rot * encoderToDegree
         }
         bot.move(0.0, 0.0, 0.0, 0.0)
     }
@@ -224,10 +236,10 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         val size = bot.cam.camProc!!.getSize()
         if (alliance == 1) { // red side
             if (size > 1000) {
-                if (centerX > 200 && centerX < 500) {
+                if (centerX > 200 && centerX < 400) {
                     t.addData("Prop: ", "Center")
                     return 5
-                } else if (centerX < 200 && centerX > 50) {
+                } else if (centerX < 200) {
                     t.addData("Prop: ", "Left")
                     return 4
                 }
@@ -237,10 +249,10 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             }
         } else { //blue side
             if (size > 1000) {
-                if (centerX > 200 && centerX < 500) {
+                if (centerX > 200 && centerX < 400) {
                     t.addData("Prop: ", "Center")
                     return 2
-                } else if (centerX < 700 && centerX > 500) {
+                } else if (centerX > 400) {
                     t.addData("Prop: ", "Right")
                     return 3
                 }
@@ -256,7 +268,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
 
     }
 
-    fun goToAprilTag(distAway : Double, propPos : Int) {
+    fun goToAprilTag(distAway : Double, propPos : Int, simpOdo : SimpleOdoMovement) {
         var targetDist : Double = 0.0
         var bearing : Double = 0.0
         var yaw : Double = 0.0
@@ -273,14 +285,12 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 t.addLine("RBE ${det.ftcPose.range} ${det.ftcPose.bearing} ${det.ftcPose.yaw}  (inch, deg, deg)")
 
                 if (det.id == propPos) {
-                    targetDist = det.ftcPose.range - distAway
-                    bearing = det.ftcPose.bearing
+                    targetDist = -(det.ftcPose.range - distAway)
+                    bearing = -det.ftcPose.bearing
                     yaw = -det.ftcPose.yaw
                     break
                 } else {
-                    targetDist = 0.0
-                    bearing = 0.0
-                    yaw = (det.id.toDouble() - propPos.toDouble()) * 30.0
+
                 }
             }
 
@@ -305,6 +315,35 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             }
 
         }
+    }
+
+    fun armmove() {
+        val time = SystemClock.uptimeMillis()
+        bot.arm.power = 0.7
+        instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
+        while (instance.opModeIsActive() && bot.arm.currentPosition < 100.0) {
+            if (bot.arm.velocity > 40) {
+                bot.arm.power -= 0.02
+            } else if (bot.arm.velocity < 40) {
+                bot.arm.power += 0.01
+            }
+        }
+        bot.arm.power = 0.0
+        bot.arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+    }
+
+    fun armback() {
+        bot.arm.power = -0.7
+
+        while (instance.opModeIsActive() && bot.arm.currentPosition > 80.0) {
+            if (bot.arm.velocity > -40) {
+                bot.arm.power -=  0.01
+            } else if (bot.arm.velocity < -40) {
+                bot.arm.power += 0.02
+            }
+        }
+        bot.arm.power = 0.0
+        bot.arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
     }
     fun switchProc(proc: VisionProcessor) {
         bot.cam.visionPortal!!.setProcessorEnabled(

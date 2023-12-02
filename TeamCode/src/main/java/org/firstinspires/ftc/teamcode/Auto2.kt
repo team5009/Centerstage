@@ -46,7 +46,7 @@ class Auto2 : LinearOpMode() {
                 sleep(500)
                 bot.pivot(25.0, -0.3)
                 sleep(500)
-                heading = bot.goToAprilTag(6.0, 5)
+                //heading = bot.goToAprilTag(6.0, 5)
             } else {
                 bot.move(30.0, 0.4)
                 if (propPos == 4) {
@@ -63,7 +63,7 @@ class Auto2 : LinearOpMode() {
                     sleep(500)
                     bot.pivot(20.0, 0.4)
                     sleep(500)
-                    heading = bot.goToAprilTag(5.0, 6)
+                    //heading = bot.goToAprilTag(5.0, 6)
                     bot.strafeside(5.0, 0.3)
                     bot.move(10.0, 0.4)
                 } else {
@@ -71,7 +71,7 @@ class Auto2 : LinearOpMode() {
                     bot.pivot(80.0, -0.5)
                     bot.intake(-0.8, 1000)
                     bot.move(25.0, 0.4)
-                    heading = bot.goToAprilTag(6.5, 4)
+                    //heading = bot.goToAprilTag(6.5, 4)
                     bot.pivot(45.0, 0.4)
                     bot.intake(0.8, 250)
                     bot.pivot(45.0, -0.4)
@@ -98,7 +98,7 @@ class Auto2 : LinearOpMode() {
             bot.pivot(90.0, -0.4)
             bot.move(60.0, 0.4)
             bot.strafeside(20.0, 0.3)
-            bot.goToAprilTag(10.0, propPos)
+            //bot.goToAprilTag(10.0, propPos)
         }
         bot.bot.cam.visionPortal!!.close()
         telemetry.addData("Status", "Ended")
