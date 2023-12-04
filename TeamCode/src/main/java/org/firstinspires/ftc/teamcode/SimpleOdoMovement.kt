@@ -273,7 +273,7 @@ class SimpleOdoMovement (private val myOpMode: LinearOpMode, robot : RobotTest, 
     }
 
     companion object {
-        private const val DRIVE_GAIN = 0.08 // Strength of axial position control
+        private const val DRIVE_GAIN = 0.11 // Strength of axial position control
         private const val DRIVE_ACCEL = 2.0 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
         private const val DRIVE_TOLERANCE = 0.8 // Controller is is "inPosition" if position error is < +/- this amount
         private const val DRIVE_DEADBAND = 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE

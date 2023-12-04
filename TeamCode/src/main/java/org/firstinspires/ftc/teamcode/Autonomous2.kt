@@ -317,29 +317,40 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         }
     }
 
-    fun armmove() {
+
+    fun armmove(apow: Double) {
         val time = SystemClock.uptimeMillis()
-        bot.arm.power = 0.7
+        bot.arm.power = -apow
         instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-        while (instance.opModeIsActive() && bot.arm.currentPosition < 100.0) {
-            if (bot.arm.velocity > 40) {
-                bot.arm.power -= 0.02
-            } else if (bot.arm.velocity < 40) {
-                bot.arm.power += 0.01
+        if (instance.opModeIsActive()) { //maybe change the 100 (&& bot.arm.currentPosition < 100.0)
+            if (bot.arm.velocity > 50) {
+                bot.arm.power += 0.1
+            } else if (bot.arm.velocity < 50) {
+                bot.arm.power -= 0.1
             }
         }
+        instance.sleep(3000)
         bot.arm.power = 0.0
         bot.arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
     }
 
-    fun armback() {
-        bot.arm.power = -0.7
+    fun newarm(apow: Double, dist: Double) {
+        bot.arm.power = apow
+        val pastpos = bot.arm.currentPosition
+        instance.telemetry.addData("arm pos", bot.arm.currentPosition)
+        if (pastpos + dist <= (bot.arm.currentPosition)) {
+            bot.arm.power = 0.0
+        }
+    }
+
+    fun armback(apow : Double) {
+        bot.arm.power = apow
 
         while (instance.opModeIsActive() && bot.arm.currentPosition > 80.0) {
             if (bot.arm.velocity > -40) {
-                bot.arm.power -=  0.01
+                bot.arm.power +=  0.01
             } else if (bot.arm.velocity < -40) {
-                bot.arm.power += 0.02
+                bot.arm.power -= 0.02
             }
         }
         bot.arm.power = 0.0

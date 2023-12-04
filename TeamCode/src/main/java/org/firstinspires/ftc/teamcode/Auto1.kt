@@ -87,7 +87,7 @@ class Auto1 : LinearOpMode() {
             odoMovement.drive(7.0, 0.35, 0.25)
             bot.halfOdoPivot(0.0)
             sleep(250)
-            odoMovement.strafe(-24.0, 0.3, 0.25)
+            odoMovement.strafe(-22.0, 0.3, 0.25)
             odoMovement.drive(4.0, 0.35, 0.25)
             bot.halfOdoPivot(-90.0)
             odoMovement.drive(-16.0, 0.3, 0.25)
@@ -109,11 +109,11 @@ class Auto1 : LinearOpMode() {
             bot.halfOdoPivot(-90.0)
             odoMovement.drive(-26.0, 0.3, 0.25)
         }
-        bot.armmove()
+        bot.armmove(0.7)
         bot.bot.flap.power = 0.8
         sleep(3000)
         bot.bot.flap.power = 0.0
-        bot.armback()
+        bot.armback(0.5)
 
 
         /*odoMovement.strafe(5.0, 0.8, 0.25)
