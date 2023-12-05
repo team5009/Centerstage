@@ -277,7 +277,6 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
 
         while (instance.opModeIsActive() && targetDist >= 0.0) {
 
-            t.update()
             var detections: List<AprilTagDetection>? = null
             detections = bot.cam.aprilTag!!.detections
             for (det in detections!!) {
@@ -287,13 +286,15 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 if (det.id == propPos) {
                     targetDist = -(det.ftcPose.range - distAway)
                     bearing = -det.ftcPose.bearing
-                    yaw = -det.ftcPose.yaw
+                    yaw = det.ftcPose.yaw
                     break
                 } else {
-
+                    targetDist = 0.0
+                    bearing = 0.0
+                    yaw = (propPos - det.id).toDouble() * 30.0
                 }
             }
-
+            t.update()
             if (detections.isEmpty()) {
                 emptyTimes += 1
             } else {
@@ -304,17 +305,18 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 bot.move(0.0, 0.0, 0.0, 0.0)
             } else {
 
-                val drive: Double = Range.clip((targetDist + 3.0) * 0.03, -0.5, 0.5)
-                val turn: Double = Range.clip(bearing * 0.02, -0.5, 0.5)
-                val strafe: Double = Range.clip(yaw * 0.01, -0.5, 0.5)
-                bot.move((drive - strafe - turn) / 1.5,
-                        (drive + strafe + turn) / 1.5,
-                        (drive + strafe - turn) / 1.5,
-                        (drive - strafe + turn) / 1.5)
+                val drive: Double = Range.clip((targetDist - 5.0) * 0.03, -0.5, 0.5)
+                //val turn: Double = Range.clip(bearing * 0.02, -0.5, 0.5)
+                val strafe: Double = Range.clip(yaw * 0.024, -0.5, 0.5)
+                bot.move((drive - strafe /*- turn*/) / 1.5,
+                        (drive + strafe /*+ turn*/) / 1.5,
+                        (drive + strafe /*- turn*/) / 1.5,
+                        (drive - strafe /*+ turn*/) / 1.5)
 
             }
 
         }
+        bot.move(0.0,0.0,0.0,0.0)
     }
 
 
@@ -322,14 +324,13 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         val time = SystemClock.uptimeMillis()
         bot.arm.power = -apow
         instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-        if (instance.opModeIsActive()) { //maybe change the 100 (&& bot.arm.currentPosition < 100.0)
-            if (bot.arm.velocity > 50) {
+        while (instance.opModeIsActive() && bot.arm.currentPosition < 100.0) { //maybe change the 100 ()
+            if (abs(bot.arm.velocity) > 60) {
                 bot.arm.power += 0.1
-            } else if (bot.arm.velocity < 50) {
+            } else if (abs(bot.arm.velocity) < 60) {
                 bot.arm.power -= 0.1
             }
         }
-        instance.sleep(3000)
         bot.arm.power = 0.0
         bot.arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
     }
@@ -347,10 +348,10 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         bot.arm.power = apow
 
         while (instance.opModeIsActive() && bot.arm.currentPosition > 80.0) {
-            if (bot.arm.velocity > -40) {
-                bot.arm.power +=  0.01
-            } else if (bot.arm.velocity < -40) {
-                bot.arm.power -= 0.02
+            if (bot.arm.velocity > 40) {
+                bot.arm.power -=  0.01
+            } else if (bot.arm.velocity < 40) {
+                bot.arm.power += 0.02
             }
         }
         bot.arm.power = 0.0

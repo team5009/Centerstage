@@ -17,7 +17,7 @@ class Auto4 : LinearOpMode() {
     // Declare OpMode members.
     private val runtime = ElapsedTime()
     override fun runOpMode() {
-        val bot = Autonomous2(this, 1, telemetry)
+        val bot = Autonomous2(this, 2, telemetry)
         val odoMovement = SimpleOdoMovement(this, bot.bot, bot.odo)
         odoMovement.initialize(true)
         while (!opModeIsActive()) {
@@ -32,7 +32,9 @@ class Auto4 : LinearOpMode() {
             telemetry.update()
         }
         waitForStart()
-        bot.goToAprilTag(5.0,1, odoMovement)
+        bot.goToAprilTag(3.0,1, odoMovement)
+        bot.armmove(0.7)
+        //bot.armback(0.7)
         while(opModeIsActive()) {
             bot.odo.calculate()
             telemetry.addData("lEnc: ",bot.bot.leftEncoder.currentPosition)
