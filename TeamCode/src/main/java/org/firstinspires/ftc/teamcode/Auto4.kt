@@ -32,7 +32,7 @@ class Auto4 : LinearOpMode() {
             telemetry.update()
         }
         waitForStart()
-        bot.goToAprilTag(3.0,1, odoMovement)
+        bot.goToAprilTag(3.0,1)
         bot.armmove(0.7)
         //bot.armback(0.7)
         while(opModeIsActive()) {

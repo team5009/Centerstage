@@ -4,17 +4,21 @@ package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.ElapsedTime
+import kotlin.math.abs
+import kotlin.math.max
 
 @Autonomous(name = "UnitTests", group = "Linear OpMode")
 //@Disabled
 class UnitTests : LinearOpMode() {
     val PosX = 0
     val PosY = 0
+    val bot: Autonomous1 = Autonomous1(this, 1,telemetry)
     // Declare OpMode members.
     private val runtime = ElapsedTime()
+   // val odoMovement = SimpleOdoMovement(this, bot.bot, bot.odo)
+    val dwt : Double = 0.12
     override fun runOpMode() {
 
-        val bot: Autonomous1 = Autonomous1(this, 1,telemetry)
         telemetry.addData("Status", "Initialized")
         telemetry.update()
         // Wait for the game to start (driver presses PLAY)
@@ -25,25 +29,8 @@ class UnitTests : LinearOpMode() {
         telemetry.update()
         // run until the end of the match (driver presses STOP)
         if (opModeIsActive()) {
-            bot.move(10.0, 0.7)
             waitForButton()
-            //bot.accelerate(10.0, 0.7)
-            waitForButton()
-           // bot.lifting(12.0, 0.5)
-           // waitForButton()
-          //  bot.lifting(12.0, -0.5)
-          //  waitForButton()
-           // bot.pivot(180.0, 0.5)
-           // waitForButton()
-           // bot.strafeside(25.0, 0.7)
-          //  waitForButton()
-          //  bot.strafefrbl(15.0, 0.7)
-          //  waitForButton()
-           // bot.strafeflbr(15.0, 0.7)
-           // waitForButton()
-           // bot.strafefrbl(15.0, -0.7)
-          //  waitForButton()
-          //  bot.strafeflbr(15.0, -0.7)
+           multimovements(1.0, 10.0, 4.0, 0.0)
         }
         telemetry.addData("Status", "Ended")
         telemetry.update()
@@ -59,6 +46,19 @@ class UnitTests : LinearOpMode() {
     fun telemetryDisplay() {
         telemetry.addData("PosX: ", PosX)
         telemetry.addData("PosY: ", PosY)
+    }
+
+    fun multimovements(ratio: Double, drive: Double, strafe: Double, turn: Double) {
+        var ratio1 : Double = ratio
+        var multiplicator : Int = 1
+        val denominator = max(abs(drive) + abs(strafe) + abs(turn), 1.0)
+        bot.bot.move(
+            (((drive + strafe * multiplicator) - turn) / denominator) * ratio1,
+            (((drive - strafe * multiplicator) + turn) / denominator) * ratio1,
+            (((drive - strafe * multiplicator) - turn) / denominator) * ratio1,
+            (((drive + strafe * multiplicator) + turn) / denominator) * ratio1
+        )
+
     }
 }
 

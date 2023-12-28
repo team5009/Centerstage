@@ -33,6 +33,7 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
     val arm: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "arm")
     val intake: DcMotorEx = Instance.hardwareMap.get(DcMotorEx::class.java, "intake")
     val flap: CRServoImplEx = Instance.hardwareMap.get(CRServoImplEx::class.java,"flap")
+    val plane : Servo = Instance.hardwareMap.get(Servo::class.java,"plane")
 
     val cam: Camera = Camera(alliance)
     val imu: BHI260IMU = Instance.hardwareMap.get(BHI260IMU::class.java, "imu")
@@ -94,6 +95,7 @@ class RobotTest(Instance: LinearOpMode, alliance : Int) {
         imu.initialize(imuParameters)
         imu.resetYaw()
 
+        plane.position = 0.0
         flap.power = 0.0
     }
 

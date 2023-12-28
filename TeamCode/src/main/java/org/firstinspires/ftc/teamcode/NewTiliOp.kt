@@ -2,11 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
-import kotlin.math.abs
-import kotlin.math.max
 
 
 @TeleOp(name = "NewTiliOp", group = "Robot")
@@ -16,7 +12,9 @@ class NewTiliOp : LinearOpMode() {
     override fun runOpMode() {
         val bot = TeleOp1(this)
         var triggerIsPressed: Boolean = false
-        var ratio = 0.15
+        var ratio = 0.8
+        var safety : Boolean = false
+        var superfastmode : Boolean = false
 
         waitForStart()
 
@@ -24,27 +22,46 @@ class NewTiliOp : LinearOpMode() {
             //telemetry.addLine("Caution! This code is experimental and might not work as well. Please do not use in a competition until you are proficient with the controls")
             //telemetry.addLine("-Emmanuel, the local madman")
 
-            bot.tele(ratio)
-
+            if (gamepad1.right_bumper) {
+                bot.bot.move(0.5,-0.5,-0.5,0.5)
+            } else if (gamepad1.left_bumper) {
+                bot.bot.move(-0.5,0.5,0.5,-0.5)
+            } else {
+                //bot.tele(ratio, superfastmode)
+                bot.tili(ratio)
+            }
+/*
             if (gamepad1.a && !gamepad1.start) {
                 telemetry.addLine("S  l  o  w    m  o  d  e    e  n  g  a  g  e  d")
-                ratio = 0.4
+                ratio = 0.3
                 telemetry.update()
+                superfastmode = false
             } else if (gamepad1.y) {
                 telemetry.addLine("N o r m a l  s p e e d")
                 telemetry.update()
                 ratio = 0.6
-            } else if (gamepad1.dpad_up && gamepad1.dpad_down) {
+                superfastmode = false
+            } else if (gamepad1.dpad_down) {
                 telemetry.addLine("FASTMODE")
                 telemetry.update()
-                ratio = 1.0
+                ratio = 0.8
+                superfastmode = false
+            } else if (gamepad1.dpad_up) {
+                telemetry.addLine("SUPER-------------FASTMODE")
+                telemetry.update()
+                superfastmode = true
+                ratio = 0.95
+            } */
+
+            if (gamepad1.right_trigger > 0.5 && !safety) {
+                bot.bot.plane.position = 1.0
+                telemetry.addLine("MR PRESIDENT ANOTHER PLANE IS HEADED TO THE SECOND TOWER!!")
             }
 
-
             if (gamepad2.dpad_down) {
-                bot.bot.intake.power = 0.8
+                bot.bot.intake.power = 1.0
                 bot.bot.flap.power = -1.0
-                bot.bot.arm.power = -0.1
+                bot.bot.arm.power = -0.15
                 telemetry.addLine("ABSORBING :O")
             } else if (gamepad2.dpad_up) {
                 bot.bot.intake.power = -0.8
@@ -52,13 +69,17 @@ class NewTiliOp : LinearOpMode() {
             } else {
                 bot.bot.intake.power = 0.0
             }
-
+            /*
+            if (gamepad1.left_trigger > 0.1 && safety) {
+                safety = false
+            }
+            */
             if (gamepad2.right_trigger > 0.1) {
                 if (!triggerIsPressed) {
                     triggerIsPressed = true
                     bot.bot.arm.power = 0.5
                 }
-                bot.armmove()
+                //bot.armmove()
                 telemetry.addLine("LIFTING XI")
             } else if (gamepad2.left_trigger > 0.1) {
                 if (!triggerIsPressed) {

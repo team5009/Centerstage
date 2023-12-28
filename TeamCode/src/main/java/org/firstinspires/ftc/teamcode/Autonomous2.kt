@@ -8,12 +8,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import kotlin.math.abs
 import com.qualcomm.robotcore.util.Range
+import kotlinx.coroutines.currentCoroutineContext
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.vision.VisionProcessor
 import kotlin.math.PI
 import kotlin.math.atan
+import kotlin.math.max
 import kotlin.math.sign
 import kotlin.math.sqrt
 
@@ -75,7 +77,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 && abs(currentHeading - heading) > 3) {
                 //&& abs(leftTarget - bot.bl.currentPosition) > 10.0
                 //&& abs(rightTarget - bot.br.currentPosition) > 10.0*/) {
-            pow = 0.4 * (abs(diff) / 100)
+            pow = max(0.4 * (abs(diff) / 100), 0.2)
             bot.move(pow * sign(diff), pow * -sign(diff), pow * sign(diff), pow * -sign(diff))
             t.addData("Left :", leftTarget - bot.bl.currentPosition)
             t.addData("Expected :", diff)
@@ -247,7 +249,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 t.addData("Prop: ", "Right")
                 return 6
             }
-        } else { //blue side
+        } else if (alliance == 2) { //blue side
             if (size > 1000) {
                 if (centerX > 200 && centerX < 400) {
                     t.addData("Prop: ", "Center")
@@ -268,14 +270,16 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
 
     }
 
-    fun goToAprilTag(distAway : Double, propPos : Int, simpOdo : SimpleOdoMovement) {
+    fun goToAprilTag(distAway : Double, propPos : Int) : AprilTagDetection? {
         var targetDist : Double = 0.0
         var bearing : Double = 0.0
         var yaw : Double = 0.0
         var emptyTimes : Int = 0
+        var timeout : Long = 0L
+        var curTime : Long = 0L
 
 
-        while (instance.opModeIsActive() && targetDist >= 0.0) {
+        while (instance.opModeIsActive() && timeout < 1000) {
 
             var detections: List<AprilTagDetection>? = null
             detections = bot.cam.aprilTag!!.detections
@@ -284,10 +288,13 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 t.addLine("RBE ${det.ftcPose.range} ${det.ftcPose.bearing} ${det.ftcPose.yaw}  (inch, deg, deg)")
 
                 if (det.id == propPos) {
-                    targetDist = -(det.ftcPose.range - distAway)
-                    bearing = -det.ftcPose.bearing
-                    yaw = det.ftcPose.yaw
-                    break
+                    //targetDist = -(det.ftcPose.range - distAway)
+                    //bearing = -det.ftcPose.bearing
+                    //yaw = det.ftcPose.yaw
+                    //break
+                    bot.move(0.0,0.0,0.0,0.0)
+                    t.update()
+                    return det
                 } else {
                     targetDist = 0.0
                     bearing = 0.0
@@ -297,15 +304,18 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             t.update()
             if (detections.isEmpty()) {
                 emptyTimes += 1
+                timeout = SystemClock.uptimeMillis() - curTime
             } else {
                 emptyTimes = 0
+                timeout = 0L
+                curTime = SystemClock.uptimeMillis()
             }
 
             if (emptyTimes > 2) {
                 bot.move(0.0, 0.0, 0.0, 0.0)
             } else {
 
-                val drive: Double = Range.clip((targetDist - 5.0) * 0.03, -0.5, 0.5)
+                val drive: Double = Range.clip((targetDist - 3.0) * 0.03, -0.5, 0.5)
                 //val turn: Double = Range.clip(bearing * 0.02, -0.5, 0.5)
                 val strafe: Double = Range.clip(yaw * 0.024, -0.5, 0.5)
                 bot.move((drive - strafe /*- turn*/) / 1.5,
@@ -317,6 +327,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
 
         }
         bot.move(0.0,0.0,0.0,0.0)
+        return null
     }
 
 
@@ -324,7 +335,9 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
         val time = SystemClock.uptimeMillis()
         bot.arm.power = -apow
         instance.telemetry.addData("Time", SystemClock.uptimeMillis() - time)
-        while (instance.opModeIsActive() && bot.arm.currentPosition < 100.0) { //maybe change the 100 ()
+        while (instance.opModeIsActive() && abs(bot.arm.currentPosition) < 120.0) { //maybe change the 100 ()
+            t.addLine("Armmoving")
+            t.update()
             if (abs(bot.arm.velocity) > 60) {
                 bot.arm.power += 0.1
             } else if (abs(bot.arm.velocity) < 60) {
@@ -347,7 +360,7 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
     fun armback(apow : Double) {
         bot.arm.power = apow
 
-        while (instance.opModeIsActive() && bot.arm.currentPosition > 80.0) {
+        while (instance.opModeIsActive() && abs(bot.arm.currentPosition) > 80.0) {
             if (bot.arm.velocity > 40) {
                 bot.arm.power -=  0.01
             } else if (bot.arm.velocity < 40) {
