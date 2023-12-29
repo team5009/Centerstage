@@ -13,6 +13,7 @@ class AutoTest : LinearOpMode() {
         while (opModeIsActive()) {
             //put the code you want to test here
             bot.armmove(0.7)
+
         }
 
     }

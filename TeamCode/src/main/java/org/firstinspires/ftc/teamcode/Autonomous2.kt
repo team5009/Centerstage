@@ -8,15 +8,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import kotlin.math.abs
 import com.qualcomm.robotcore.util.Range
-import kotlinx.coroutines.currentCoroutineContext
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import org.checkerframework.checker.units.qual.Angle
+import org.firstinspires.ftc.teamcode.misc.refAngle
+import org.firstinspires.ftc.teamcode.misc.refRad
 import org.firstinspires.ftc.vision.VisionProcessor
 import kotlin.math.PI
 import kotlin.math.atan
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sign
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 
@@ -31,6 +33,26 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
     var lastX: Double = 0.0
     var lastY: Double = 0.0
     var lastTheta: Double = 0.0
+
+    private val driveController: ProportionalController = ProportionalController(
+        DRIVE_GAIN,
+        DRIVE_ACCEL,
+        DRIVE_MAX_AUTO,
+        DRIVE_TOLERANCE,
+        DRIVE_DEADBAND, false)
+    private val strafeController: ProportionalController = ProportionalController(
+        STRAFE_GAIN,
+        STRAFE_ACCEL,
+        STRAFE_MAX_AUTO,
+        STRAFE_TOLERANCE,
+        STRAFE_DEADBAND, false)
+    private val yawController: ProportionalController = ProportionalController(
+        YAW_GAIN,
+        YAW_ACCEL,
+        YAW_MAX_AUTO,
+        YAW_TOLERANCE,
+        YAW_DEADBAND, true)
+    private val holdTimer = ElapsedTime()
 
     fun autoTicsPerInch(dist: Double) :Double {
         return 2000.0 / 2.0 / Math.PI * dist
@@ -101,6 +123,126 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
             return theta
         }
     }
+
+    fun goTo(x : Double, y : Double, angle: Double, holdTime: Int = 500) {
+        var deltaY = y - odo.location.y
+        var deltaX = x - odo.location.x
+        var theta: Double = atan2(deltaY, deltaX)
+        var thetaDifference = refRad(theta - odo.location.rot)
+        var thetaError: Double
+        var turn: Double
+
+        if (abs(thetaDifference) < PI / 2) {
+            if (thetaDifference < 0) {
+                driveController.reset(x, 0.2) //  Maintain zero drive drift
+                strafeController.reset(y, 0.4) // Achieve desired Strafe distance
+            } else {
+                driveController.reset(x, 0.2) //  Maintain zero drive drift
+                strafeController.reset(y, 0.4) // Achieve desired Strafe distance
+            }
+        } else {
+            if (thetaDifference < 0) {
+                driveController.reset(x, 0.2) //  Maintain zero drive drift
+                strafeController.reset(y, 0.4) // Achieve desired Strafe distance
+            } else {
+                driveController.reset(x, 0.2) //  Maintain zero drive drift
+                strafeController.reset(y, 0.4) // Achieve desired Strafe distance
+            }
+        }
+
+        yawController.reset(refAngle(angle), 0.2) // Maintain last turn angle
+        holdTimer.reset()
+
+        while (instance.opModeIsActive() && (!driveController.inPosition() || !strafeController.inPosition() || !yawController.inPosition())) {
+            odo.calculate()
+            deltaY = y - odo.location.y
+            deltaX = x - odo.location.x
+            theta = atan2(deltaY, deltaX)
+            thetaDifference = refRad(theta - odo.location.rot)
+
+            val powers = checkThetaDiff(thetaDifference , deltaX, deltaY)
+            turn = -yawController.getOutput(refAngle(angle) - refAngle( odo.location.rot * 180 / PI))
+
+            var flPower = powers[0] - powers[1] - turn
+            var frPower = powers[0] + powers[1] + turn
+            var blPower = powers[0] + powers[1] - turn
+            var brPower = powers[0] - powers[1] + turn
+
+            var max = maxOf(abs(flPower), abs(frPower))
+            max = maxOf(max, abs(blPower))
+            max = maxOf(max, abs(brPower))
+
+            if (max > 1) {
+                flPower /= max
+                frPower /= max
+                blPower /= max
+                brPower /= max
+            }
+            instance.telemetry.addData("powerFL ", flPower)
+            instance.telemetry.addData("powerFR ", frPower)
+            instance.telemetry.addData("powerBL ", blPower)
+            instance.telemetry.addData("powerBR ", brPower)
+            instance.telemetry.addData("x: ", odo.location.x)
+            instance.telemetry.addData("y: ", odo.location.y)
+            instance.telemetry.addData("rot: ", odo.location.rot)
+            instance.telemetry.addData("theta: ", theta)
+            instance.telemetry.addData("theta Difference: ", thetaDifference)
+            instance.telemetry.addData("Drive", powers[0])
+            instance.telemetry.addData("Strafe", powers[1])
+            instance.telemetry.addData("turn", turn)
+            instance.telemetry.addData("delta X: ", deltaX)
+            instance.telemetry.addData("delta Y: ", deltaY)
+            instance.telemetry.update()
+
+            bot.move(flPower, frPower, blPower, brPower)
+            if (driveController.inPosition() && yawController.inPosition()) {
+                if (holdTimer.time() > holdTime) {
+                    break // Exit loop if we are in position, and have been there long enough.
+                }
+            } else {
+                holdTimer.reset()
+            }
+        }
+        bot.move(0.0, 0.0, 0.0, 0.0)
+    }
+
+    fun checkThetaDiff(theta: Double, deltaX: Double, deltaY: Double): DoubleArray {
+        val thetaDifference = refRad(theta - odo.location.rot)
+        val drivePower: Double
+        val strafePower: Double
+
+        if (abs(thetaDifference) < PI / 4 || abs(thetaDifference) > 3 * PI / 4) {
+            drivePower = driveController.getOutput(deltaX) // Comment
+            strafePower = strafeController.getOutput(deltaY) // Comment
+        } else {
+            drivePower = driveController.getOutput(deltaY) // Comment
+            strafePower = strafeController.getOutput(deltaX) // Comment
+        }
+
+//        if (abs(thetaDifference) < PI / 2) {
+//            if (thetaDifference < 0) {
+//                drivePower = driveController.getOutput(deltaX) // Comment
+//                strafePower = strafeController.getOutput(deltaY) // Comment
+//            } else {
+//                drivePower = driveController.getOutput(deltaX) // Comment
+//                strafePower = strafeController.getOutput(deltaY) // Comment
+//            }
+//        } else {
+//            if (thetaDifference < 0) {
+//                drivePower = driveController.getOutput(deltaX) // Comment
+//                strafePower = strafeController.getOutput(deltaY) // Comment
+//            } else {
+//                drivePower = driveController.getOutput(deltaX) // Comment
+//                strafePower = strafeController.getOutput(deltaY) // Comment
+//            }
+//        }
+
+        return doubleArrayOf(
+            drivePower,
+            -strafePower
+        )
+    }
+
     fun setOrigin(x: Double, y: Double, theta: Double) {
         lastX = x
         lastY = y
@@ -375,6 +517,26 @@ class Autonomous2(Instance: LinearOpMode, alliance: Int, tele: Telemetry) {
                 proc,
                 !bot.cam.visionPortal!!.getProcessorEnabled(proc)
         )
+    }
+
+    companion object {
+        private const val DRIVE_GAIN = 0.11 // Strength of axial position control
+        private const val DRIVE_ACCEL = 2.0 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
+        private const val DRIVE_TOLERANCE = 0.8 // Controller is is "inPosition" if position error is < +/- this amount
+        private const val DRIVE_DEADBAND = 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
+        private const val DRIVE_MAX_AUTO = 0.6 // "default" Maximum Axial power limit during autonomous
+
+        private const val STRAFE_GAIN = 0.12 // Strength of lateral position control
+        private const val STRAFE_ACCEL = 1.5 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
+        private const val STRAFE_TOLERANCE = 1.0 // Controller is is "inPosition" if position error is < +/- this amount
+        private const val STRAFE_DEADBAND = 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
+        private const val STRAFE_MAX_AUTO = 0.6 // "default" Maximum Lateral power limit during autonomous
+
+        private const val YAW_GAIN = 0.03 // Strength of Yaw position control
+        private const val YAW_ACCEL = 2.0 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
+        private const val YAW_TOLERANCE = 1.0 // Controller is is "inPosition" if position error is < +/- this amount
+        private const val YAW_DEADBAND = 0.25 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
+        private const val YAW_MAX_AUTO = 0.6 // "default" Maximum Yaw power limit during autonomous
     }
 }
 

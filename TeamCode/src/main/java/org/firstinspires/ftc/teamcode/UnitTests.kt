@@ -12,7 +12,7 @@ import kotlin.math.max
 class UnitTests : LinearOpMode() {
     val PosX = 0
     val PosY = 0
-    val bot: Autonomous1 = Autonomous1(this, 1,telemetry)
+    val bot: Autonomous2 = Autonomous2(this, 1,telemetry)
     // Declare OpMode members.
     private val runtime = ElapsedTime()
    // val odoMovement = SimpleOdoMovement(this, bot.bot, bot.odo)

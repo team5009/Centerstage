@@ -31,7 +31,7 @@ class ProportionalController(var gain: Double, var accelLimit: Double, var defau
      * @return desired output power.
      */
     fun getOutput(input: Double): Double {
-        var error = setpoint - input
+        var error = input
         val dV = cycleTime.seconds() * accelLimit
         var output: Double
 

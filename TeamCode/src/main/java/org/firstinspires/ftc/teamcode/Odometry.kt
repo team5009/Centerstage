@@ -12,7 +12,7 @@ class Odometry (robot: RobotTest) {
     var location = Point(0.0, 0.0, 0.0)
 
     private val distanceLeftRight: Double = 11.5652
-    private val distanceBack: Double = -6.5
+    private val distanceBack: Double = 6.5
     private val encoderConstant: Double = PI * 2.0 / 2000.0
 
     private var currentLeft = 0.0
@@ -37,13 +37,13 @@ class Odometry (robot: RobotTest) {
         val deltaRight = currentRight - lastRight
         val deltaBack = currentBack - lastBack
 
-        val deltaTheta = ((deltaLeft - deltaRight) / distanceLeftRight)
-        val deltaX = ((deltaLeft + deltaRight) / 2.0)
-        val deltaY = ((deltaBack - distanceBack) * deltaTheta)
+        val deltaTheta = ((deltaLeft - deltaRight) / distanceLeftRight) * encoderConstant
+        val deltaX = ((deltaLeft + deltaRight) / 2.0) * encoderConstant
+        val deltaY = (deltaBack - distanceBack * deltaTheta) * encoderConstant
 
         val theta = location.rot + deltaTheta
         location.x += deltaX * cos(theta) - deltaY * sin(theta)
-        location.y += deltaX * sin(theta) + deltaY * cos(theta)
+        location.y -= deltaX * sin(theta) + deltaY * cos(theta)
         location.rot += deltaTheta
     }
 
